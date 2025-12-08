@@ -33,14 +33,13 @@ class BienvenidaActivity : AppCompatActivity() {
     
     private fun setupListeners() {
         btnContinue.setOnClickListener {
-            val userName = intent.getStringExtra("USER_NAME") ?: "Usuario"
-            val userEmail = intent.getStringExtra("USER_EMAIL") ?: ""
             
-            val intent = Intent(this, ConfigurarPresupuestoInicialActivity::class.java)
-            intent.putExtra("USER_NAME", userName)
-            intent.putExtra("USER_EMAIL", userEmail)
-            startActivity(intent)
-            finish()
+            // Temporal: mostrar mensaje
+            android.widget.Toast.makeText(
+                this, 
+                "Configuración de presupuesto próximamente", 
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
