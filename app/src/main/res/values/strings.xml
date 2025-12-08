@@ -1,3 +1,78 @@
 <resources>
-    <string name="app_name">finance</string>
+    <string name="app_name">Plata Clara</string>
+    
+    <!-- SignUp Activity -->
+    <string name="sign_up_title">Crear cuenta</string>
+    <string name="sign_up_subtitle">Completa tus datos para comenzar</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="full_name_hint">María García</string>
+    <string name="email">Correo electrónico</string>
+    <string name="email_hint">tu@email.com</string>
+    <string name="password">Contraseña</string>
+    <string name="password_hint">••••••</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="already_have_account">¿Ya tienes cuenta?</string>
+    <string name="login_action">Inicia sesión</string>
+    <string name="accept_terms">Acepto los</string>
+    <string name="terms_and_conditions">Términos y Condiciones</string>
+    <string name="and">y la</string>
+    <string name="privacy_policy">Política de Privacidad</string>
+    <string name="name_error">El nombre debe tener al menos 3 caracteres</string>
+    <string name="email_error">Ingresa un correo válido</string>
+    <string name="password_error">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="password_match_error">Las contraseñas no coinciden</string>
+    
+    <!-- Login Activity -->
+    <string name="login_title">Bienvenido</string>
+    <string name="login_subtitle">Ingresa a tu cuenta</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="no_account">¿No tienes cuenta?</string>
+    <string name="register_action">Regístrate</string>
+    <string name="login_error">Por favor completa todos los campos</string>
+    <string name="invalid_email">Por favor ingresa un email válido</string>
+    <string name="app_tagline">Tus finanzas personales, simples y claras</string>
+    <string name="terms_footer">Al continuar aceptas nuestros términos y condiciones</string>
+    
+    <!-- Bienvenida Activity -->
+    <string name="welcome_title">¡Bienvenido %1$s!</string>
+    <string name="welcome_subtitle">Estás a punto de tomar el control total de tus finanzas personales</string>
+    <string name="feature_analytics_title">Análisis de gastos</string>
+    <string name="feature_analytics_desc">Visualiza tus patrones de consumo con gráficos claros</string>
+    <string name="feature_categories_title">Categorización automática</string>
+    <string name="feature_categories_desc">Organiza tus gastos sin esfuerzo manual</string>
+    <string name="feature_goals_title">Metas financieras</string>
+    <string name="feature_goals_desc">Define objetivos y alcánzalos con nuestro seguimiento</string>
+    <string name="continue_button">Continuar</string>
+    
+    <!-- Configurar Presupuesto Inicial -->
+    <string name="budget_setup_title">Configura tu presupuesto</string>
+    <string name="budget_setup_subtitle">¿Cuánto dinero planeas gastar al mes? Esto nos ayudará a calcular tu presupuesto diario.</string>
+    <string name="monthly_budget">Presupuesto mensual</string>
+    <string name="daily_budget_title">Presupuesto diario estimado</string>
+    <string name="daily_budget_desc">Esto es lo que puedes gastar cada día en promedio</string>
+    <string name="info_tip_title">Consejo útil</string>
+    <string name="info_tip_desc">Puedes modificar este presupuesto en cualquier momento desde la configuración de la app</string>
+    <string name="budget_examples">Ejemplos de presupuesto mensual:</string>
+    <string name="start_using_app">Comenzar a usar Plata Clara</string>
+    <string name="setup_later">Configurar después</string>
+    <string name="budget_error">Por favor ingresa un presupuesto mensual válido</string>
+    
+    <!-- Configurar Presupuesto por Categorías -->
+    <string name="category_budget_title">Presupuesto de %1$s</string>
+    <string name="use_last_month">Usar el mismo del mes pasado</string>
+    <string name="save_budget">Guardar presupuesto</string>
+    <string name="category_food">Comida afuera</string>
+    <string name="category_transport">Transporte</string>
+    <string name="category_coffee">Café</string>
+    <string name="category_shopping">Mercado</string>
+    <string name="category_home">Hogar</string>
+    <string name="category_entertainment">Entretenimiento</string>
+    <string name="category_services">Servicios</string>
+    <string name="category_phone">Celular</string>
+    
+    <!-- Common -->
+    <string name="or">o</string>
+    <string name="currency_symbol">$</string>
 </resources>

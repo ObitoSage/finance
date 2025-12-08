@@ -2,4 +2,44 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Colores principales de Plata Clara -->
+    <color name="primary_dark">#212842</color>
+    <color name="primary_light">#F0E7D5</color>
+    <color name="accent_teal">#14B8A6</color>
+    <color name="accent_teal_dark">#0d9488</color>
+    
+    <!-- Grises -->
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F3F4F6</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_300">#D1D5DB</color>
+    <color name="gray_400">#9CA3AF</color>
+    <color name="gray_500">#6B7280</color>
+    <color name="gray_600">#4B5563</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_900">#111827</color>
+    
+    <!-- Estados -->
+    <color name="red_50">#FEF2F2</color>
+    <color name="red_200">#FECACA</color>
+    <color name="red_400">#F87171</color>
+    <color name="red_500">#EF4444</color>
+    <color name="red_600">#DC2626</color>
+    <color name="green_500">#10B981</color>
+    <color name="blue_50">#EFF6FF</color>
+    <color name="blue_100">#DBEAFE</color>
+    <color name="blue_500">#3B82F6</color>
+    <color name="blue_700">#1D4ED8</color>
+    <color name="blue_900">#1E3A8A</color>
+    
+    <!-- Colores para categorías -->
+    <color name="category_food">#EF4444</color>
+    <color name="category_transport">#3B82F6</color>
+    <color name="category_coffee">#8B4513</color>
+    <color name="category_shopping">#10B981</color>
+    <color name="category_home">#F59E0B</color>
+    <color name="category_entertainment">#EC4899</color>
+    <color name="category_services">#6366F1</color>
+    <color name="category_phone">#14B8A6</color>
 </resources>
