@@ -6,56 +6,49 @@ import android.text.InputType
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import com.example.finance.databinding.ActivityLoginBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
     
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var ivTogglePassword: ImageView
-    private lateinit var tvForgotPassword: TextView
-    private lateinit var cvError: CardView
-    private lateinit var tvError: TextView
-    private lateinit var btnLogin: Button
-    private lateinit var tvGoToSignUp: TextView
+    private lateinit var binding: ActivityLoginBinding
+    private lateinit var auth: FirebaseAuth
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
-        initViews()
+        auth = FirebaseAuth.getInstance()
+        
+        // Verificar si ya hay sesión activa
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            navigateToBienvenida()
+            return
+        }
+        
         setupListeners()
     }
     
-    private fun initViews() {
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        ivTogglePassword = findViewById(R.id.ivTogglePassword)
-        tvForgotPassword = findViewById(R.id.tvForgotPassword)
-        cvError = findViewById(R.id.cvError)
-        tvError = findViewById(R.id.tvError)
-        btnLogin = findViewById(R.id.btnLogin)
-        tvGoToSignUp = findViewById(R.id.tvGoToSignUp)
-    }
-    
     private fun setupListeners() {
-        // Toggle password visibility
-        ivTogglePassword.setOnClickListener {
+        // Mostrar/ocultar contraseña
+        binding.ivTogglePassword.setOnClickListener {
             togglePasswordVisibility()
         }
         
-        // Forgot password
-        tvForgotPassword.setOnClickListener {
+        // Recuperar contraseña
+        binding.tvForgotPassword.setOnClickListener {
             Toast.makeText(this, "Recuperar contraseña (próximamente)", Toast.LENGTH_SHORT).show()
         }
         
-        // Login button
-        btnLogin.setOnClickListener {
+        // Botón de login
+        binding.btnLogin.setOnClickListener {
             handleLogin()
         }
         
-        // Navigate to sign up
-        tvGoToSignUp.setOnClickListener {
+        // Ir a registro
+        binding.tvGoToSignUp.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
             finish()
@@ -63,22 +56,22 @@ class LoginActivity : AppCompatActivity() {
     }
     
     private fun togglePasswordVisibility() {
-        if (etPassword.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
-            etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        if (binding.etPassword.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
+            binding.etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         } else {
-            etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            binding.etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
         }
-        etPassword.setSelection(etPassword.text.length)
+        binding.etPassword.setSelection(binding.etPassword.text.length)
     }
     
     private fun handleLogin() {
-        val email = etEmail.text.toString().trim()
-        val password = etPassword.text.toString()
+        val email = binding.etEmail.text.toString().trim()
+        val password = binding.etPassword.text.toString()
         
-        // Hide previous error
-        cvError.visibility = View.GONE
+        // Ocultar error previo
+        binding.cvError.visibility = View.GONE
         
-        // Validation
+        // Validaciones
         if (email.isEmpty() || password.isEmpty()) {
             showError(getString(R.string.login_error))
             return
@@ -89,20 +82,31 @@ class LoginActivity : AppCompatActivity() {
             return
         }
         
-        // Simulate successful login - extract first name from email
-        val userName = email.substringBefore("@").split(".")
-            .joinToString(" ") { it.capitalize() }
+        // Desactivar botón durante login
+        binding.btnLogin.isEnabled = false
         
-        // Navigate to Bienvenida
+        // Autenticar con Firebase
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                binding.btnLogin.isEnabled = true
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Bienvenido", Toast.LENGTH_SHORT).show()
+                    navigateToBienvenida()
+                } else {
+                    val errorMessage = task.exception?.message ?: "Error al iniciar sesión"
+                    showError(errorMessage)
+                }
+            }
+    }
+    
+    private fun navigateToBienvenida() {
         val intent = Intent(this, BienvenidaActivity::class.java)
-        intent.putExtra("USER_NAME", userName)
-        intent.putExtra("USER_EMAIL", email)
         startActivity(intent)
         finish()
     }
     
     private fun showError(message: String) {
-        tvError.text = message
-        cvError.visibility = View.VISIBLE
+        binding.tvError.text = message
+        binding.cvError.visibility = View.VISIBLE
     }
 }
