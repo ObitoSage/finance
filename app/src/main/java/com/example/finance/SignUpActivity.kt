@@ -8,36 +8,23 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import com.example.finance.databinding.ActivitySignUpBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
 
 class SignUpActivity : AppCompatActivity() {
     
-    // Views
-    private lateinit var btnBack: CardView
-    private lateinit var etName: EditText
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var etConfirmPassword: EditText
-    private lateinit var ivNameCheck: ImageView
-    private lateinit var ivEmailCheck: ImageView
-    private lateinit var ivTogglePassword: ImageView
-    private lateinit var ivToggleConfirmPassword: ImageView
-    private lateinit var tvNameError: TextView
-    private lateinit var tvEmailError: TextView
-    private lateinit var tvPasswordError: TextView
-    private lateinit var tvConfirmPasswordError: TextView
-    private lateinit var cbTerms: CheckBox
-    private lateinit var btnSignUp: Button
-    private lateinit var tvGoToLogin: TextView
+    private lateinit var binding: ActivitySignUpBinding
+    private lateinit var auth: FirebaseAuth
     
-    // Validation states
+    // Estados de validación
     private var isNameValid = false
     private var isEmailValid = false
     private var isPasswordValid = false
     private var doPasswordsMatch = false
     private var termsAccepted = false
     
-    // Touched states
+    // Estados de campos tocados
     private var nameTouched = false
     private var emailTouched = false
     private var passwordTouched = false
@@ -45,39 +32,22 @@ class SignUpActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sign_up)
+        binding = ActivitySignUpBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
-        initViews()
+        auth = FirebaseAuth.getInstance()
+        
         setupListeners()
     }
     
-    private fun initViews() {
-        btnBack = findViewById(R.id.btnBack)
-        etName = findViewById(R.id.etName)
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        etConfirmPassword = findViewById(R.id.etConfirmPassword)
-        ivNameCheck = findViewById(R.id.ivNameCheck)
-        ivEmailCheck = findViewById(R.id.ivEmailCheck)
-        ivTogglePassword = findViewById(R.id.ivTogglePassword)
-        ivToggleConfirmPassword = findViewById(R.id.ivToggleConfirmPassword)
-        tvNameError = findViewById(R.id.tvNameError)
-        tvEmailError = findViewById(R.id.tvEmailError)
-        tvPasswordError = findViewById(R.id.tvPasswordError)
-        tvConfirmPasswordError = findViewById(R.id.tvConfirmPasswordError)
-        cbTerms = findViewById(R.id.cbTerms)
-        btnSignUp = findViewById(R.id.btnSignUp)
-        tvGoToLogin = findViewById(R.id.tvGoToLogin)
-    }
-    
     private fun setupListeners() {
-        // Back button
-        btnBack.setOnClickListener {
+        // Botón volver
+        binding.btnBack.setOnClickListener {
             navigateToLogin()
         }
         
-        // Name validation
-        etName.addTextChangedListener(object : TextWatcher {
+        // Validación de nombre
+        binding.etName.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 validateName()
             }
@@ -85,15 +55,15 @@ class SignUpActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
         
-        etName.setOnFocusChangeListener { _, hasFocus ->
+        binding.etName.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 nameTouched = true
                 validateName()
             }
         }
         
-        // Email validation
-        etEmail.addTextChangedListener(object : TextWatcher {
+        // Validación de email
+        binding.etEmail.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 validateEmail()
             }
@@ -101,15 +71,15 @@ class SignUpActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
         
-        etEmail.setOnFocusChangeListener { _, hasFocus ->
+        binding.etEmail.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 emailTouched = true
                 validateEmail()
             }
         }
         
-        // Password validation
-        etPassword.addTextChangedListener(object : TextWatcher {
+        // Validación de contraseña
+        binding.etPassword.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 validatePassword()
             }
@@ -117,15 +87,15 @@ class SignUpActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
         
-        etPassword.setOnFocusChangeListener { _, hasFocus ->
+        binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 passwordTouched = true
                 validatePassword()
             }
         }
         
-        // Confirm password validation
-        etConfirmPassword.addTextChangedListener(object : TextWatcher {
+        // Validación de confirmar contraseña
+        binding.etConfirmPassword.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 validateConfirmPassword()
             }
@@ -133,50 +103,50 @@ class SignUpActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
         
-        etConfirmPassword.setOnFocusChangeListener { _, hasFocus ->
+        binding.etConfirmPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 confirmPasswordTouched = true
                 validateConfirmPassword()
             }
         }
         
-        // Toggle password visibility
-        ivTogglePassword.setOnClickListener {
-            togglePasswordVisibility(etPassword, ivTogglePassword)
+        // Mostrar/ocultar contraseña
+        binding.ivTogglePassword.setOnClickListener {
+            togglePasswordVisibility(binding.etPassword, binding.ivTogglePassword)
         }
         
-        ivToggleConfirmPassword.setOnClickListener {
-            togglePasswordVisibility(etConfirmPassword, ivToggleConfirmPassword)
+        binding.ivToggleConfirmPassword.setOnClickListener {
+            togglePasswordVisibility(binding.etConfirmPassword, binding.ivToggleConfirmPassword)
         }
         
-        // Terms checkbox
-        cbTerms.setOnCheckedChangeListener { _, isChecked ->
+        // Checkbox de términos
+        binding.cbTerms.setOnCheckedChangeListener { _, isChecked ->
             termsAccepted = isChecked
             updateSubmitButton()
         }
         
-        // Submit button
-        btnSignUp.setOnClickListener {
+        // Botón de registro
+        binding.btnSignUp.setOnClickListener {
             handleSignUp()
         }
         
-        // Navigate to login
-        tvGoToLogin.setOnClickListener {
+        // Ir a login
+        binding.tvGoToLogin.setOnClickListener {
             navigateToLogin()
         }
     }
     
     private fun validateName() {
-        val name = etName.text.toString().trim()
+        val name = binding.etName.text.toString().trim()
         isNameValid = name.length >= 3
         
         if (nameTouched) {
             if (isNameValid) {
-                ivNameCheck.visibility = View.VISIBLE
-                tvNameError.visibility = View.GONE
+                binding.ivNameCheck.visibility = View.VISIBLE
+                binding.tvNameError.visibility = View.GONE
             } else {
-                ivNameCheck.visibility = View.GONE
-                tvNameError.visibility = View.VISIBLE
+                binding.ivNameCheck.visibility = View.GONE
+                binding.tvNameError.visibility = View.VISIBLE
             }
         }
         
@@ -184,16 +154,16 @@ class SignUpActivity : AppCompatActivity() {
     }
     
     private fun validateEmail() {
-        val email = etEmail.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
         isEmailValid = email.contains("@") && email.contains(".")
         
         if (emailTouched && email.isNotEmpty()) {
             if (isEmailValid) {
-                ivEmailCheck.visibility = View.VISIBLE
-                tvEmailError.visibility = View.GONE
+                binding.ivEmailCheck.visibility = View.VISIBLE
+                binding.tvEmailError.visibility = View.GONE
             } else {
-                ivEmailCheck.visibility = View.GONE
-                tvEmailError.visibility = View.VISIBLE
+                binding.ivEmailCheck.visibility = View.GONE
+                binding.tvEmailError.visibility = View.VISIBLE
             }
         }
         
@@ -201,14 +171,14 @@ class SignUpActivity : AppCompatActivity() {
     }
     
     private fun validatePassword() {
-        val password = etPassword.text.toString()
+        val password = binding.etPassword.text.toString()
         isPasswordValid = password.length >= 6
         
         if (passwordTouched && password.isNotEmpty()) {
-            tvPasswordError.visibility = if (isPasswordValid) View.GONE else View.VISIBLE
+            binding.tvPasswordError.visibility = if (isPasswordValid) View.GONE else View.VISIBLE
         }
         
-        // Re-validate confirm password
+        // Re-validar confirmar contraseña
         if (confirmPasswordTouched) {
             validateConfirmPassword()
         }
@@ -217,12 +187,12 @@ class SignUpActivity : AppCompatActivity() {
     }
     
     private fun validateConfirmPassword() {
-        val password = etPassword.text.toString()
-        val confirmPassword = etConfirmPassword.text.toString()
+        val password = binding.etPassword.text.toString()
+        val confirmPassword = binding.etConfirmPassword.text.toString()
         doPasswordsMatch = password == confirmPassword && confirmPassword.isNotEmpty()
         
         if (confirmPasswordTouched && confirmPassword.isNotEmpty()) {
-            tvConfirmPasswordError.visibility = if (doPasswordsMatch) View.GONE else View.VISIBLE
+            binding.tvConfirmPasswordError.visibility = if (doPasswordsMatch) View.GONE else View.VISIBLE
         }
         
         updateSubmitButton()
@@ -240,25 +210,25 @@ class SignUpActivity : AppCompatActivity() {
     private fun updateSubmitButton() {
         val isFormValid = isNameValid && isEmailValid && isPasswordValid && doPasswordsMatch && termsAccepted
         
-        btnSignUp.isEnabled = isFormValid
+        binding.btnSignUp.isEnabled = isFormValid
         
         if (isFormValid) {
-            btnSignUp.backgroundTintList = resources.getColorStateList(R.color.primary_dark, null)
-            btnSignUp.setTextColor(resources.getColor(R.color.white, null))
+            binding.btnSignUp.backgroundTintList = resources.getColorStateList(R.color.primary_dark, null)
+            binding.btnSignUp.setTextColor(resources.getColor(R.color.white, null))
         } else {
-            btnSignUp.backgroundTintList = resources.getColorStateList(R.color.gray_200, null)
-            btnSignUp.setTextColor(resources.getColor(R.color.gray_400, null))
+            binding.btnSignUp.backgroundTintList = resources.getColorStateList(R.color.gray_200, null)
+            binding.btnSignUp.setTextColor(resources.getColor(R.color.gray_400, null))
         }
     }
     
     private fun handleSignUp() {
-        // Mark all fields as touched
+        // Marcar todos los campos como tocados
         nameTouched = true
         emailTouched = true
         passwordTouched = true
         confirmPasswordTouched = true
         
-        // Re-validate all fields
+        // Re-validar todos los campos
         validateName()
         validateEmail()
         validatePassword()
@@ -269,15 +239,45 @@ class SignUpActivity : AppCompatActivity() {
             return
         }
         
-        // Get values
-        val name = etName.text.toString().trim()
-        val email = etEmail.text.toString().trim()
-        val password = etPassword.text.toString()
+        // Obtener valores
+        val name = binding.etName.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
+        val password = binding.etPassword.text.toString()
         
-        // Navigate to Bienvenida
+        // Desactivar botón durante registro
+        binding.btnSignUp.isEnabled = false
+        
+        // Registrar con Firebase
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Actualizar perfil con nombre
+                    val user = auth.currentUser
+                    val profileUpdates = userProfileChangeRequest {
+                        displayName = name
+                    }
+                    
+                    user?.updateProfile(profileUpdates)
+                        ?.addOnCompleteListener { profileTask ->
+                            binding.btnSignUp.isEnabled = true
+                            if (profileTask.isSuccessful) {
+                                Toast.makeText(this, "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show()
+                                navigateToBienvenida()
+                            } else {
+                                Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                                navigateToBienvenida()
+                            }
+                        }
+                } else {
+                    binding.btnSignUp.isEnabled = true
+                    val errorMessage = task.exception?.message ?: "Error al registrar usuario"
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+    }
+    
+    private fun navigateToBienvenida() {
         val intent = Intent(this, BienvenidaActivity::class.java)
-        intent.putExtra("USER_NAME", name)
-        intent.putExtra("USER_EMAIL", email)
         startActivity(intent)
         finish()
     }

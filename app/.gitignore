@@ -1,1 +1,13 @@
+# Build files
 /build
+
+# Google Services (Firebase) - IMPORTANTE: NO SUBIR
+google-services.json
+
+# Signing configuration
+release/
+*.jks
+*.keystore
+
+# Local configuration
+local.properties
