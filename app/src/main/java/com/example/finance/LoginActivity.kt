@@ -90,7 +90,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 binding.btnLogin.isEnabled = true
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Bienvenido", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Hola", Toast.LENGTH_SHORT).show()
                     navigateToBienvenida()
                 } else {
                     val errorMessage = task.exception?.message ?: "Error al iniciar sesión"

@@ -14,7 +14,7 @@
     <string name="create_account">Crear cuenta</string>
     <string name="already_have_account">¿Ya tienes cuenta?</string>
     <string name="login_action">Inicia sesión</string>
-    <string name="accept_terms">Acepto los</string>
+    <string name="accept_terms">Acepto los terminos y condiciones</string>
     <string name="terms_and_conditions">Términos y Condiciones</string>
     <string name="and">y la</string>
     <string name="privacy_policy">Política de Privacidad</string>
@@ -36,7 +36,7 @@
     <string name="terms_footer">Al continuar aceptas nuestros términos y condiciones</string>
     
     <!-- Bienvenida Activity -->
-    <string name="welcome_title">¡Bienvenido %1$s!</string>
+    <string name="welcome_title">¡Hola %1$s!</string>
     <string name="welcome_subtitle">Estás a punto de tomar el control total de tus finanzas personales</string>
     <string name="feature_analytics_title">Análisis de gastos</string>
     <string name="feature_analytics_desc">Visualiza tus patrones de consumo con gráficos claros</string>

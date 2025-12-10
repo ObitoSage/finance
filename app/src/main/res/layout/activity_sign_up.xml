@@ -336,7 +336,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/accept_terms"
+                android:text= "@string/accept_terms"
                 android:textSize="14sp"
                 android:textColor="@color/gray_600"
                 android:layout_gravity="center_vertical" />
