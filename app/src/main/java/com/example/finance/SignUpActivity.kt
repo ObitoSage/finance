@@ -271,7 +271,7 @@ class SignUpActivity : AppCompatActivity() {
                 } else {
                     binding.btnSignUp.isEnabled = true
                     val errorMessage = task.exception?.message ?: "Error al registrar usuario"
-                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this,"Esta cuenta ya existe, cambia de correo o inicia sesion.", Toast.LENGTH_LONG).show()
                 }
             }
     }
