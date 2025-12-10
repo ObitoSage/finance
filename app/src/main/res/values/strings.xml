@@ -14,7 +14,7 @@
     <string name="create_account">Crear cuenta</string>
     <string name="already_have_account">¿Ya tienes cuenta?</string>
     <string name="login_action">Inicia sesión</string>
-    <string name="accept_terms">Acepto los</string>
+    <string name="accept_terms">Acepto los terminos y condiciones</string>
     <string name="terms_and_conditions">Términos y Condiciones</string>
     <string name="and">y la</string>
     <string name="privacy_policy">Política de Privacidad</string>
@@ -36,7 +36,7 @@
     <string name="terms_footer">Al continuar aceptas nuestros términos y condiciones</string>
     
     <!-- Bienvenida Activity -->
-    <string name="welcome_title">¡Bienvenido %1$s!</string>
+    <string name="welcome_title">¡Hola %1$s!</string>
     <string name="welcome_subtitle">Estás a punto de tomar el control total de tus finanzas personales</string>
     <string name="feature_analytics_title">Análisis de gastos</string>
     <string name="feature_analytics_desc">Visualiza tus patrones de consumo con gráficos claros</string>
@@ -75,4 +75,33 @@
     <!-- Common -->
     <string name="or">o</string>
     <string name="currency_symbol">$</string>
+    
+    <!-- Dashboard Activity -->
+    <string name="dashboard_greeting">Hola %1$s</string>
+    <string name="dashboard_today_remaining">Hoy te quedan</string>
+    <string name="dashboard_today_spent">Hoy gastaste</string>
+    <string name="dashboard_daily_budget">Presupuesto diario</string>
+    <string name="dashboard_daily_budget_label">Presupuesto diario</string>
+    <string name="dashboard_daily_budget_value">Presupuesto diario: %1$s</string>
+    <string name="dashboard_configure_hint">Configura tu presupuesto para comenzar</string>
+    <string name="dashboard_configure_budget">Configurar presupuesto</string>
+    <string name="dashboard_month_balance">Balance del mes</string>
+    <string name="dashboard_income">Ingresos</string>
+    <string name="dashboard_expenses">Gastos</string>
+    <string name="dashboard_total_balance">Balance total</string>
+    <string name="dashboard_today_budget">Presupuesto de hoy</string>
+    <string name="dashboard_percent_used">%1$d%% usado</string>
+    <string name="dashboard_last_expenses">Últimos gastos</string>
+    <string name="dashboard_no_expenses">Sin gastos aún</string>
+    <string name="dashboard_register_first">Registra tu primer gasto</string>
+    <string name="dashboard_last_7_days">Últimos 7 días</string>
+    <string name="dashboard_no_data">Sin datos aún</string>
+    <string name="dashboard_quick_access">Accesos rápidos</string>
+    <string name="dashboard_categories">Categorías</string>
+    <string name="dashboard_goals">Metas</string>
+    <string name="dashboard_history">Historial</string>
+    <string name="dashboard_report">Reporte</string>
+    <string name="dashboard_profile">Usuario</string>
+    <string name="dashboard_expense">Gasto</string>
+    <string name="dashboard_income_btn">Ingreso</string>
 </resources>
