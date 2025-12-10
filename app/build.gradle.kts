@@ -47,6 +47,17 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    
+    // MPAndroidChart para gráficos
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    
+    // RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    
+    // CardView
+    implementation("androidx.cardview:cardview:1.0.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

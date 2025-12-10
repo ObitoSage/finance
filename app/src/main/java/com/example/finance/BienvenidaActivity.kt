@@ -43,12 +43,10 @@ class BienvenidaActivity : AppCompatActivity() {
     
     private fun setupListeners() {
         binding.btnContinue.setOnClickListener {
-            // Temporal
-            android.widget.Toast.makeText(
-                this, 
-                "Configuración de presupuesto próximamente", 
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
+            // Navegar al Dashboard
+            val intent = Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+            finish()
         }
         
         binding.btnLogout.setOnClickListener {
