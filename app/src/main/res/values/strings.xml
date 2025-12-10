@@ -75,4 +75,33 @@
     <!-- Common -->
     <string name="or">o</string>
     <string name="currency_symbol">$</string>
+    
+    <!-- Dashboard Activity -->
+    <string name="dashboard_greeting">Hola %1$s</string>
+    <string name="dashboard_today_remaining">Hoy te quedan</string>
+    <string name="dashboard_today_spent">Hoy gastaste</string>
+    <string name="dashboard_daily_budget">Presupuesto diario</string>
+    <string name="dashboard_daily_budget_label">Presupuesto diario</string>
+    <string name="dashboard_daily_budget_value">Presupuesto diario: %1$s</string>
+    <string name="dashboard_configure_hint">Configura tu presupuesto para comenzar</string>
+    <string name="dashboard_configure_budget">Configurar presupuesto</string>
+    <string name="dashboard_month_balance">Balance del mes</string>
+    <string name="dashboard_income">Ingresos</string>
+    <string name="dashboard_expenses">Gastos</string>
+    <string name="dashboard_total_balance">Balance total</string>
+    <string name="dashboard_today_budget">Presupuesto de hoy</string>
+    <string name="dashboard_percent_used">%1$d%% usado</string>
+    <string name="dashboard_last_expenses">Últimos gastos</string>
+    <string name="dashboard_no_expenses">Sin gastos aún</string>
+    <string name="dashboard_register_first">Registra tu primer gasto</string>
+    <string name="dashboard_last_7_days">Últimos 7 días</string>
+    <string name="dashboard_no_data">Sin datos aún</string>
+    <string name="dashboard_quick_access">Accesos rápidos</string>
+    <string name="dashboard_categories">Categorías</string>
+    <string name="dashboard_goals">Metas</string>
+    <string name="dashboard_history">Historial</string>
+    <string name="dashboard_report">Reporte</string>
+    <string name="dashboard_profile">Usuario</string>
+    <string name="dashboard_expense">Gasto</string>
+    <string name="dashboard_income_btn">Ingreso</string>
 </resources>
