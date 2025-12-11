@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".ConfigurarPresupuestoInicialActivity">
+
+    <!-- ScrollView para el contenido principal -->
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/layoutBottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:paddingTop="48dp">
+
+            <!-- Header con ícono -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_teal"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_calendar"
+                        android:contentDescription="@string/calendar_icon"
+                        app:tint="@android:color/white" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Título -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/configure_budget_title"
+                android:textSize="32sp"
+                android:textColor="@color/text_dark"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Descripción -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/configure_budget_description"
+                android:textSize="17sp"
+                android:textColor="@color/gray_600"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Label Presupuesto mensual -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/monthly_budget_label"
+                android:textSize="14sp"
+                android:textColor="@color/gray_600"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Input de presupuesto mensual -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/beige_light"
+                app:cardElevation="0dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/tvCurrencySymbol"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="20dp"
+                        android:text="@string/currency_symbol"
+                        android:textSize="32sp"
+                        android:textColor="@color/gray_400" />
+
+                    <EditText
+                        android:id="@+id/etPresupuestoMensual"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_toEndOf="@id/tvCurrencySymbol"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="20dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/budget_hint"
+                        android:inputType="number"
+                        android:textSize="32sp"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/gray_400"
+                        android:fontFamily="sans-serif-medium"
+                        android:importantForAutofill="no" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card presupuesto diario calculado -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPresupuestoDiario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/beige_light"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:text="@string/daily_budget_label"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray_600"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_dollar"
+                            android:contentDescription="@string/dollar_icon"
+                            app:tint="@color/accent_teal" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/tvPresupuestoDiario"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/budget_value_placeholder"
+                        android:textSize="28sp"
+                        android:textColor="@color/text_dark"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvDailyBudgetInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/daily_budget_hint"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_600" />
+
+                    <TextView
+                        android:id="@+id/tvDaysRemaining"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textColor="@color/accent_teal"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginTop="8dp"
+                        android:visibility="visible" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Información adicional -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/blue_50"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginTop="2dp"
+                        android:src="@drawable/ic_info"
+                        android:contentDescription="@string/info_icon"
+                        app:tint="@color/blue_500" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/budget_info_title"
+                            android:textSize="14sp"
+                            android:textColor="@color/blue_900"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/budget_info_description"
+                            android:textSize="14sp"
+                            android:textColor="@color/blue_700"
+                            android:lineSpacingExtra="4dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Ejemplos de presupuesto -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/budget_examples_label"
+                android:textSize="14sp"
+                android:textColor="@color/gray_600"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExample1"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/budget_example_500"
+                    android:textSize="17sp"
+                    android:textColor="@color/text_dark"
+                    app:backgroundTint="@color/beige_light"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExample2"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/budget_example_1000"
+                    android:textSize="17sp"
+                    android:textColor="@color/text_dark"
+                    app:backgroundTint="@color/beige_light"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExample3"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="@string/budget_example_2000"
+                    android:textSize="17sp"
+                    android:textColor="@color/text_dark"
+                    app:backgroundTint="@color/beige_light"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botones en la parte inferior -->
+    <LinearLayout
+        android:id="@+id/layoutBottom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="32dp"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Botón principal -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/start_using_app"
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-medium"
+            android:enabled="false"
+            app:backgroundTint="@color/accent_teal"
+            app:cornerRadius="16dp"
+            app:elevation="8dp" />
+
+        <!-- Botón secundario -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfigureLater"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/configure_later"
+            android:textSize="14sp"
+            android:textColor="@color/gray_600"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="12dp"
+            app:backgroundTint="@android:color/transparent"
+            app:elevation="0dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

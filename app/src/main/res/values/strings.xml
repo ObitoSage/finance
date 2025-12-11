@@ -76,6 +76,25 @@
     <string name="or">o</string>
     <string name="currency_symbol">$</string>
     
+    <!-- Configurar Presupuesto Inicial Activity -->
+    <string name="configure_budget_title">Configura tu presupuesto</string>
+    <string name="configure_budget_description">¿Cuánto dinero planeas gastar al mes? Esto nos ayudará a calcular tu presupuesto diario.</string>
+    <string name="monthly_budget_label">Presupuesto mensual</string>
+    <string name="budget_hint">0</string>
+    <string name="daily_budget_label">Presupuesto diario aproximado</string>
+    <string name="daily_budget_hint">Esto es lo que puedes gastar cada día en promedio</string>
+    <string name="budget_value_placeholder">Bs 0</string>
+    <string name="budget_info_title">¿Cómo definir tu presupuesto?</string>
+    <string name="budget_info_description">Calcula tus ingresos mensuales y resta tus gastos fijos (arriendo, servicios, transporte, etc.). El resultado es tu presupuesto disponible.</string>
+    <string name="budget_examples_label">Ejemplos de presupuesto mensual:</string>
+    <string name="budget_example_500">Bs 500</string>
+    <string name="budget_example_1000">Bs 1,000</string>
+    <string name="budget_example_2000">Bs 2,000</string>
+    <string name="configure_later">Configurar después</string>
+    <string name="calendar_icon">Ícono de calendario</string>
+    <string name="dollar_icon">Ícono de dinero</string>
+    <string name="info_icon">Ícono de información</string>
+    
     <!-- Dashboard Activity -->
     <string name="dashboard_greeting">Hola %1$s</string>
     <string name="dashboard_today_remaining">Hoy te quedan</string>
@@ -104,4 +123,22 @@
     <string name="dashboard_profile">Usuario</string>
     <string name="dashboard_expense">Gasto</string>
     <string name="dashboard_income_btn">Ingreso</string>
+    
+    <!-- Usuario Activity -->
+    <string name="profile_title">Mi perfil</string>
+    <string name="profile_member_since">Miembro desde %1$s</string>
+    <string name="profile_member_since_value">Miembro desde %1$s</string>
+    <string name="profile_edit_button">Editar perfil</string>
+    <string name="profile_personal_info">Información personal</string>
+    <string name="profile_full_name">Nombre completo</string>
+    <string name="profile_email">Correo electrónico</string>
+    <string name="profile_member_date">Miembro desde</string>
+    <string name="profile_statistics">Tus estadísticas</string>
+    <string name="profile_total_spent">Total gastado</string>
+    <string name="profile_total_saved">Total ahorrado</string>
+    <string name="profile_goals_completed">Metas completadas</string>
+    <string name="profile_active_goals">Metas activas</string>
+    <string name="profile_session">Sesión</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_version">Plata Clara v1.0.0</string>
 </resources>
