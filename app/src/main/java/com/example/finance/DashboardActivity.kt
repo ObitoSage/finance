@@ -118,6 +118,11 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        // Botón logout
+        binding.btnLogout.setOnClickListener {
+            logout()
+        }
+        
         // Botón configurar presupuesto
         binding.btnConfigureBudget.setOnClickListener {
             navigateToConfigureBudget()
@@ -467,6 +472,14 @@ class DashboardActivity : AppCompatActivity() {
     private fun navigateToConfigureBudget() {
         // TODO: Implementar navegación a ConfigurarPresupuestoInicialActivity
         showToast("Configurar presupuesto (próximamente)")
+    }
+    
+    private fun logout() {
+        auth.signOut()
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun showToast(message: String) {

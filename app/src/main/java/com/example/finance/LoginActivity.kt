@@ -1,5 +1,6 @@
 package com.example.finance
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -14,6 +15,11 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     
+    companion object {
+        private const val PREFS_NAME = "FinanceAppPrefs"
+        private const val KEY_FIRST_TIME = "isFirstTime"
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -24,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
         // Verificar si ya hay sesión activa
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            navigateToBienvenida()
+            navigateAfterLogin()
             return
         }
         
@@ -90,8 +96,8 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 binding.btnLogin.isEnabled = true
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Hola", Toast.LENGTH_SHORT).show()
-                    navigateToBienvenida()
+                    Toast.makeText(this, "Bienvenido", Toast.LENGTH_SHORT).show()
+                    navigateAfterLogin()
                 } else {
                     val errorMessage = task.exception?.message ?: "Error al iniciar sesión"
                     showError(errorMessage)
@@ -99,9 +105,19 @@ class LoginActivity : AppCompatActivity() {
             }
     }
     
-    private fun navigateToBienvenida() {
-        val intent = Intent(this, BienvenidaActivity::class.java)
+    private fun navigateAfterLogin() {
+        // Si es la primera vez, mostrar onboarding (Bienvenida)
+        // Si no, ir directamente al Dashboard
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isFirstTime = prefs.getBoolean(KEY_FIRST_TIME, true)
+        
+        val intent = if (isFirstTime) {
+            Intent(this, BienvenidaActivity::class.java)
+        } else {
+            Intent(this, DashboardActivity::class.java)
+        }
         startActivity(intent)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }
     
