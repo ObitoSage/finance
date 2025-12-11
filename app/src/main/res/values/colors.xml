@@ -33,6 +33,10 @@
     <color name="blue_700">#1D4ED8</color>
     <color name="blue_900">#1E3A8A</color>
     
+    <!-- Otros colores -->
+    <color name="text_dark">#212842</color>
+    <color name="beige_light">#F0E7D5</color>
+    
     <!-- Colores para categorías -->
     <color name="category_food">#EF4444</color>
     <color name="category_transport">#3B82F6</color>

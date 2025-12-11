@@ -464,8 +464,8 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun navigateToConfigureBudget() {
-        // TODO: Implementar navegación a ConfigurarPresupuestoInicialActivity
-        showToast("Configurar presupuesto (próximamente)")
+        val intent = Intent(this, ConfigurarPresupuestoInicialActivity::class.java)
+        startActivity(intent)
     }
     
     private fun navigateToProfile() {
