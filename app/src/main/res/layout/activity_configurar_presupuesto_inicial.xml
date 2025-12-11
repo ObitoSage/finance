@@ -172,11 +172,23 @@
                         android:layout_marginBottom="4dp" />
 
                     <TextView
+                        android:id="@+id/tvDailyBudgetInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/daily_budget_hint"
                         android:textSize="14sp"
                         android:textColor="@color/gray_600" />
+
+                    <TextView
+                        android:id="@+id/tvDaysRemaining"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textColor="@color/accent_teal"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginTop="8dp"
+                        android:visibility="visible" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

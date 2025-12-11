@@ -11,6 +11,7 @@ import com.example.finance.databinding.ActivityConfigurarPresupuestoInicialBindi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
@@ -118,9 +119,25 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
 
     private fun updateDailyBudget() {
         if (presupuestoMensual > 0) {
-            val presupuestoDiario = (presupuestoMensual / 30).toInt()
+            // Calcular días del mes actual
+            val calendar = Calendar.getInstance()
+            val diasDelMes = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val diaActual = calendar.get(Calendar.DAY_OF_MONTH)
+            val diasRestantes = diasDelMes - diaActual + 1
+            
+            // Calcular presupuesto diario usando días reales
+            val presupuestoDiario = (presupuestoMensual.toDouble() / diasDelMes).toInt()
+            
+            // Mostrar card con información
             binding.cardPresupuestoDiario.visibility = View.VISIBLE
             binding.tvPresupuestoDiario.text = formatCurrency(presupuestoDiario.toDouble())
+            
+            // Actualizar texto informativo con días del mes
+            val mesNombre = SimpleDateFormat("MMMM", Locale("es", "ES")).format(Date())
+            binding.tvDailyBudgetInfo.text = "Esto es lo que puedes gastar cada día en promedio ($diasDelMes días en $mesNombre)"
+            
+            // Mostrar días restantes si existe el TextView
+            binding.tvDaysRemaining?.text = "Quedan $diasRestantes días del mes"
         } else {
             binding.cardPresupuestoDiario.visibility = View.GONE
         }
