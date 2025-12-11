@@ -9,9 +9,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finance.adapters.GastoAdapter
 import com.example.finance.databinding.ActivityDashboardBinding
-import com.example.finance.models.ChartData
-import com.example.finance.models.Gasto
-import com.example.finance.models.Ingreso
+import com.example.finance.dataClass.ChartData
+import com.example.finance.dataClass.Gasto
+import com.example.finance.dataClass.Ingreso
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.finance.R
 import com.example.finance.databinding.ItemGastoBinding
-import com.example.finance.models.Gasto
+import com.example.finance.dataClass.Gasto
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
