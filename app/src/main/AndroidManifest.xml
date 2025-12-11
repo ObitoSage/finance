@@ -58,6 +58,12 @@
             android:name=".DashboardActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        
+        <!-- Usuario Activity -->
+        <activity
+            android:name=".UsuarioActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
             
     </application>
 

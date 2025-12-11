@@ -123,4 +123,22 @@
     <string name="dashboard_profile">Usuario</string>
     <string name="dashboard_expense">Gasto</string>
     <string name="dashboard_income_btn">Ingreso</string>
+    
+    <!-- Usuario Activity -->
+    <string name="profile_title">Mi perfil</string>
+    <string name="profile_member_since">Miembro desde %1$s</string>
+    <string name="profile_member_since_value">Miembro desde %1$s</string>
+    <string name="profile_edit_button">Editar perfil</string>
+    <string name="profile_personal_info">Información personal</string>
+    <string name="profile_full_name">Nombre completo</string>
+    <string name="profile_email">Correo electrónico</string>
+    <string name="profile_member_date">Miembro desde</string>
+    <string name="profile_statistics">Tus estadísticas</string>
+    <string name="profile_total_spent">Total gastado</string>
+    <string name="profile_total_saved">Total ahorrado</string>
+    <string name="profile_goals_completed">Metas completadas</string>
+    <string name="profile_active_goals">Metas activas</string>
+    <string name="profile_session">Sesión</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_version">Plata Clara v1.0.0</string>
 </resources>
