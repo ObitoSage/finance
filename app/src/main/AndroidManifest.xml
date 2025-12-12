@@ -65,6 +65,18 @@
             android:name=".UsuarioActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        
+        <!-- Registrar Gasto Activity -->
+        <activity
+            android:name=".RegistrarGastoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Registrar Ingreso Activity -->
+        <activity
+            android:name=".RegistrarIngresoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
             
     </application>
 

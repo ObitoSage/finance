@@ -2,16 +2,20 @@ package com.example.finance.dataBase.repository
 
 import com.example.finance.Dao.GastoDao
 import com.example.finance.Dao.IngresoDao
+import com.example.finance.Dao.UsuarioDao
 import com.example.finance.dataBase.entities.GastoEntity
 import com.example.finance.dataBase.entities.IngresoEntity
+import com.example.finance.dataBase.entities.UsuarioEntity
 import kotlinx.coroutines.flow.Flow
 
 //Repository que actúa como una capa de abstracción entre los DAOs y el resto de la app.
 
 class FinanceRepository(
     private val gastoDao: GastoDao,
-    private val ingresoDao: IngresoDao) {
-    
+    private val ingresoDao: IngresoDao,
+    private val usuarioDao: UsuarioDao
+) {
+
     //GASTOS
     fun getAllGastos(userId: String): Flow<List<GastoEntity>> = 
         gastoDao.getAllGastosByUser(userId)
@@ -88,4 +92,40 @@ class FinanceRepository(
         val totalGastos = getTotalGastos(userId)
         return totalIngresos - totalGastos
     }
+
+    // USUARIO / PRESUPUESTO
+
+    suspend fun insertOrUpdateUsuario(usuario: UsuarioEntity) =
+        usuarioDao.insertUsuario(usuario)
+
+    suspend fun getUsuarioById(userId: String): UsuarioEntity? =
+        usuarioDao.getUsuarioById(userId)
+
+    fun getUsuarioByIdFlow(userId: String): Flow<UsuarioEntity?> =
+        usuarioDao.getUsuarioByIdFlow(userId)
+
+    suspend fun updatePresupuestoMensual(userId: String, presupuesto: Double) {
+        val fechaActual = System.currentTimeMillis()
+        val existeUsuario = usuarioDao.existsUsuario(userId) > 0
+
+        if (existeUsuario) {
+            usuarioDao.updatePresupuestoMensual(userId, presupuesto, fechaActual)
+        } else {
+            val nuevoUsuario = UsuarioEntity(
+                userId = userId,
+                presupuestoMensual = presupuesto,
+                fechaActualizacion = fechaActual
+            )
+            usuarioDao.insertUsuario(nuevoUsuario)
+        }
+    }
+
+    suspend fun getPresupuestoMensual(userId: String): Double =
+        usuarioDao.getPresupuestoMensual(userId) ?: 0.0
+
+    suspend fun existeUsuario(userId: String): Boolean =
+        usuarioDao.existsUsuario(userId) > 0
+
+    suspend fun deleteUsuario(userId: String) =
+        usuarioDao.deleteUsuarioById(userId)
 }

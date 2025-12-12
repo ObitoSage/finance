@@ -6,24 +6,28 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.finance.Dao.GastoDao
 import com.example.finance.Dao.IngresoDao
+import com.example.finance.Dao.UsuarioDao
 import com.example.finance.dataBase.entities.GastoEntity
 import com.example.finance.dataBase.entities.IngresoEntity
+import com.example.finance.dataBase.entities.UsuarioEntity
 
 //Usa el patrón Singleton para garantizar una única instancia de la base de datos.
 
 @Database(
     entities = [
         GastoEntity::class,
-        IngresoEntity::class
+        IngresoEntity::class,
+        UsuarioEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     
     abstract fun gastoDao(): GastoDao
     abstract fun ingresoDao(): IngresoDao
-    
+    abstract fun usuarioDao(): UsuarioDao
+
     companion object {
         private const val DATABASE_NAME = "finance_database"
         

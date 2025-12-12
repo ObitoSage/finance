@@ -19,7 +19,8 @@ class FinanceApplication : Application() {
     val repository: FinanceRepository by lazy { 
         FinanceRepository(
             gastoDao = database.gastoDao(),
-            ingresoDao = database.ingresoDao()
-        ) 
+            ingresoDao = database.ingresoDao(),
+            usuarioDao = database.usuarioDao()
+        )
     }
 }
