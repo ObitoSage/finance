@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".FinanceApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -62,6 +63,18 @@
         <!-- Usuario Activity -->
         <activity
             android:name=".UsuarioActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Registrar Gasto Activity -->
+        <activity
+            android:name=".RegistrarGastoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Registrar Ingreso Activity -->
+        <activity
+            android:name=".RegistrarIngresoActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
             

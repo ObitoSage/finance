@@ -7,9 +7,11 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.finance.databinding.ActivityConfigurarPresupuestoInicialBinding
+import com.example.finance.dataBase.repository.FinanceRepository
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,8 +20,8 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityConfigurarPresupuestoInicialBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-    
+    private lateinit var repository: FinanceRepository
+
     private var presupuestoMensual: Long = 0
     
     // Formato de moneda boliviana
@@ -31,7 +33,7 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+        repository = (application as FinanceApplication).repository
 
         setupInputListener()
         setupClickListeners()
@@ -163,23 +165,18 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
         binding.btnGuardar.isEnabled = false
         binding.btnGuardar.text = "Guardando..."
 
-        // Guardar en Firestore
-        val userData = hashMapOf(
-            "presupuestoMensual" to presupuestoMensual.toDouble(),
-            "fechaActualizacion" to com.google.firebase.Timestamp.now()
-        )
-
-        db.collection("users").document(userId)
-            .set(userData, com.google.firebase.firestore.SetOptions.merge())
-            .addOnSuccessListener {
-                Toast.makeText(this, "Presupuesto guardado exitosamente", Toast.LENGTH_SHORT).show()
+        // Guardar en Room usando coroutines
+        lifecycleScope.launch {
+            try {
+                repository.updatePresupuestoMensual(userId, presupuestoMensual.toDouble())
+                Toast.makeText(this@ConfigurarPresupuestoInicialActivity, "Presupuesto guardado exitosamente", Toast.LENGTH_SHORT).show()
                 navigateToDashboard()
-            }
-            .addOnFailureListener { e ->
+            } catch (e: Exception) {
                 binding.btnGuardar.isEnabled = true
                 binding.btnGuardar.text = getString(R.string.start_using_app)
-                Toast.makeText(this, "Error al guardar: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ConfigurarPresupuestoInicialActivity, "Error al guardar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        }
     }
 
     private fun navigateToDashboard() {

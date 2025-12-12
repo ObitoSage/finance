@@ -6,20 +6,23 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finance.adapters.GastoAdapter
 import com.example.finance.databinding.ActivityDashboardBinding
-import com.example.finance.models.ChartData
-import com.example.finance.models.Gasto
-import com.example.finance.models.Ingreso
+import com.example.finance.dataClass.ChartData
+import com.example.finance.dataClass.Gasto
+import com.example.finance.dataClass.Ingreso
+import com.example.finance.dataBase.EntityMappers.toDomain
+import com.example.finance.dataBase.EntityMappers.toGastosDomain
+import com.example.finance.dataBase.EntityMappers.toIngresosDomain
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -28,7 +31,6 @@ class DashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDashboardBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
     private lateinit var gastoAdapter: GastoAdapter
 
     // Datos
@@ -48,7 +50,6 @@ class DashboardActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
 
         // Verificar sesión
         if (auth.currentUser == null) {
@@ -125,14 +126,12 @@ class DashboardActivity : AppCompatActivity() {
 
         // Botón agregar gasto
         binding.btnAddExpense.setOnClickListener {
-            // TODO: Navegar a pantalla de registrar gasto
-            showToast("Registrar gasto (próximamente)")
+            startActivity(Intent(this, RegistrarGastoActivity::class.java))
         }
 
         // Botón agregar ingreso
         binding.btnAddIncome.setOnClickListener {
-            // TODO: Navegar a pantalla de registrar ingreso
-            showToast("Registrar ingreso (próximamente)")
+            startActivity(Intent(this, RegistrarIngresoActivity::class.java))
         }
 
         // Accesos rápidos
@@ -172,114 +171,121 @@ class DashboardActivity : AppCompatActivity() {
         val firstName = userName.split(" ").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "Usuario"
         binding.tvGreeting.text = getString(R.string.dashboard_greeting, firstName)
 
-        // Cargar presupuesto mensual
+        // Cargar presupuesto mensual desde Firestore
         loadBudget(userId)
         
-        // Cargar gastos
-        loadGastos(userId)
-        
-        // Cargar ingresos
-        loadIngresos(userId)
+        // Cargar gastos e ingresos desde Room Database
+        loadGastosFromRoom(userId)
+        loadIngresosFromRoom(userId)
     }
 
     private fun loadBudget(userId: String) {
-        db.collection("users").document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    presupuestoMensual = document.getDouble("presupuestoMensual") ?: 0.0
-                    updateBudgetUI()
-                } else {
-                    presupuestoMensual = 0.0
-                    updateBudgetUI()
-                }
-            }
-            .addOnFailureListener {
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        lifecycleScope.launch {
+            try {
+                presupuestoMensual = repository.getPresupuestoMensual(userId)
+                updateBudgetUI()
+            } catch (e: Exception) {
                 presupuestoMensual = 0.0
                 updateBudgetUI()
             }
+        }
     }
 
-    private fun loadGastos(userId: String) {
-        // Obtener primer día del mes actual
+    /**
+     * Carga los gastos del mes actual desde Room Database.
+     * Usa Flow para recibir actualizaciones automáticas cuando cambian los datos.
+     */
+    private fun loadGastosFromRoom(userId: String) {
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        // Calcular inicio del mes
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
-        val startOfMonth = calendar.time
+        val startOfMonth = calendar.timeInMillis
 
-        db.collection("gastos")
-            .whereEqualTo("userId", userId)
-            .whereGreaterThanOrEqualTo("fecha", startOfMonth)
-            .orderBy("fecha", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
+        lifecycleScope.launch {
+            try {
+                // Obtener gastos del mes actual
+                val endOfMonth = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
+                    set(Calendar.HOUR_OF_DAY, 23)
+                    set(Calendar.MINUTE, 59)
+                }.timeInMillis
+
+                repository.getGastosByDateRange(userId, startOfMonth, endOfMonth)
+                    .collect { gastosEntity ->
+                        // Convertir entities a domain models
+                        gastos.clear()
+                        gastos.addAll(gastosEntity.toGastosDomain())
+                        
+                        // Actualizar UI
+                        updateGastosUI()
+                        updateChartData()
+                        updateBalanceUI()
+                        updateProgressUI()
+                    }
+            } catch (e: Exception) {
+                showToast("Error al cargar gastos: ${e.message}")
                 gastos.clear()
-                for (document in documents) {
-                    val gasto = Gasto(
-                        id = document.id,
-                        categoria = document.getString("categoria") ?: "",
-                        descripcion = document.getString("descripcion") ?: "",
-                        monto = document.getDouble("monto") ?: 0.0,
-                        fecha = document.getDate("fecha") ?: Date(),
-                        userId = userId
-                    )
-                    gastos.add(gasto)
-                }
                 updateGastosUI()
                 updateChartData()
                 updateBalanceUI()
                 updateProgressUI()
             }
-            .addOnFailureListener {
-                gastos.clear()
-                updateGastosUI()
-                updateChartData()
-                updateBalanceUI()
-                updateProgressUI()
-            }
+        }
     }
 
-    private fun loadIngresos(userId: String) {
-        // Obtener primer día del mes actual
+    /**
+     * Carga los ingresos del mes actual desde Room Database.
+     * Usa Flow para recibir actualizaciones automáticas cuando cambian los datos.
+     */
+    private fun loadIngresosFromRoom(userId: String) {
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        // Calcular inicio del mes
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
-        val startOfMonth = calendar.time
+        val startOfMonth = calendar.timeInMillis
 
-        db.collection("ingresos")
-            .whereEqualTo("userId", userId)
-            .whereGreaterThanOrEqualTo("fecha", startOfMonth)
-            .orderBy("fecha", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
+        lifecycleScope.launch {
+            try {
+                // Obtener ingresos del mes actual
+                val endOfMonth = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
+                    set(Calendar.HOUR_OF_DAY, 23)
+                    set(Calendar.MINUTE, 59)
+                }.timeInMillis
+
+                repository.getIngresosByDateRange(userId, startOfMonth, endOfMonth)
+                    .collect { ingresosEntity ->
+                        // Convertir entities a domain models
+                        ingresos.clear()
+                        ingresos.addAll(ingresosEntity.toIngresosDomain())
+                        
+                        // Actualizar UI
+                        updateBalanceUI()
+                    }
+            } catch (e: Exception) {
+                showToast("Error al cargar ingresos: ${e.message}")
                 ingresos.clear()
-                for (document in documents) {
-                    val ingreso = Ingreso(
-                        id = document.id,
-                        categoria = document.getString("categoria") ?: "",
-                        descripcion = document.getString("descripcion") ?: "",
-                        monto = document.getDouble("monto") ?: 0.0,
-                        fecha = document.getDate("fecha") ?: Date(),
-                        userId = userId
-                    )
-                    ingresos.add(ingreso)
-                }
                 updateBalanceUI()
             }
-            .addOnFailureListener {
-                ingresos.clear()
-                updateBalanceUI()
-            }
+        }
     }
 
     private fun updateBudgetUI() {
         val presupuestoDiario = if (presupuestoMensual > 0) (presupuestoMensual / 30).toInt() else 0
-        
-        // Calcular gasto de hoy
         val gastoHoy = calcularGastoHoy()
         
         if (presupuestoDiario > 0) {
@@ -471,14 +477,6 @@ class DashboardActivity : AppCompatActivity() {
     private fun navigateToProfile() {
         val intent = Intent(this, UsuarioActivity::class.java)
         startActivity(intent)
-    }
-    
-    private fun logout() {
-        auth.signOut()
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
     }
 
     private fun showToast(message: String) {
