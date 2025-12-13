@@ -148,8 +148,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         binding.btnGoals.setOnClickListener {
-            // TODO: Navegar a metas
-            showToast("Metas (próximamente)")
+            startActivity(Intent(this, MetasActivity::class.java))
         }
 
         binding.btnHistory.setOnClickListener {

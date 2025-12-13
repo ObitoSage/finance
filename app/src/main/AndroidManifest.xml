@@ -77,6 +77,18 @@
             android:name=".RegistrarIngresoActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        
+        <!-- Metas Activity -->
+        <activity
+            android:name=".MetasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Nueva Meta Activity -->
+        <activity
+            android:name=".NuevaMetaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
             
     </application>
 
