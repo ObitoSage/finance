@@ -71,14 +71,27 @@
         </LinearLayout>
 
         <!-- Barra de progreso -->
-        <ProgressBar
-            android:id="@+id/progressBar"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="12dp"
-            android:layout_marginBottom="16dp"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:max="100"
-            android:progress="24" />
+            android:layout_marginBottom="16dp">
+
+            <!-- Fondo de la barra -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="12dp"
+                android:background="@drawable/bg_progress_background" />
+
+            <!-- Progress bar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="12dp"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/bg_progress_bar" />
+        </FrameLayout>
 
         <!-- Footer: porcentaje y botón -->
         <LinearLayout

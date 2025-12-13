@@ -4,7 +4,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.finance.R
 import com.example.finance.databinding.ItemMetaBinding
@@ -23,8 +23,11 @@ class MetaAdapter(
     }
 
     fun submitList(newMetas: List<Meta>) {
+        val diffCallback = MetaDiffCallback(metas, newMetas)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        
         metas = newMetas
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MetaViewHolder {
@@ -63,11 +66,36 @@ class MetaAdapter(
             binding.progressBar.max = 100
             binding.progressBar.progress = porcentaje.toInt()
             
-            // Color de la barra de progreso
-            binding.progressBar.progressDrawable.setColorFilter(
-                Color.parseColor(meta.color),
-                PorterDuff.Mode.SRC_IN
-            )
+            // Crear drawable personalizado con el color de la meta
+            val progressDrawable = android.graphics.drawable.LayerDrawable(
+                arrayOf(
+                    android.graphics.drawable.ShapeDrawable().apply {
+                        paint.color = android.graphics.Color.TRANSPARENT
+                        shape = android.graphics.drawable.shapes.RoundRectShape(
+                            floatArrayOf(6f, 6f, 6f, 6f, 6f, 6f, 6f, 6f),
+                            null,
+                            null
+                        )
+                    },
+                    android.graphics.drawable.ClipDrawable(
+                        android.graphics.drawable.ShapeDrawable().apply {
+                            paint.color = Color.parseColor(meta.color)
+                            shape = android.graphics.drawable.shapes.RoundRectShape(
+                                floatArrayOf(6f, 6f, 6f, 6f, 6f, 6f, 6f, 6f),
+                                null,
+                                null
+                            )
+                        },
+                        android.view.Gravity.LEFT,
+                        android.graphics.drawable.ClipDrawable.HORIZONTAL
+                    )
+                )
+            ).apply {
+                setId(0, android.R.id.background)
+                setId(1, android.R.id.progress)
+            }
+            
+            binding.progressBar.progressDrawable = progressDrawable
 
             // Ícono y su contenedor
             val iconResId = getIconResource(meta.icono)
@@ -99,6 +127,31 @@ class MetaAdapter(
                 "health" -> R.drawable.ic_health
                 else -> R.drawable.ic_target
             }
+        }
+    }
+    
+    // DiffUtil para actualizaciones eficientes
+    private class MetaDiffCallback(
+        private val oldList: List<Meta>,
+        private val newList: List<Meta>
+    ) : DiffUtil.Callback() {
+        
+        override fun getOldListSize(): Int = oldList.size
+        
+        override fun getNewListSize(): Int = newList.size
+        
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+        
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldMeta = oldList[oldItemPosition]
+            val newMeta = newList[newItemPosition]
+            return oldMeta.ahorrado == newMeta.ahorrado && 
+                   oldMeta.objetivo == newMeta.objetivo &&
+                   oldMeta.nombre == newMeta.nombre &&
+                   oldMeta.color == newMeta.color &&
+                   oldMeta.icono == newMeta.icono
         }
     }
 }

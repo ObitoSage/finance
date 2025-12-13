@@ -89,10 +89,15 @@ class MetasActivity : AppCompatActivity() {
             try {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     repository.getAllMetas(userId).collect { metasEntity ->
-                        metas.clear()
-                        metas.addAll(metasEntity.toMetasDomain())
+                        // Convertir a lista de dominio
+                        val nuevasMetas = metasEntity.toMetasDomain()
                         
-                        metaAdapter.submitList(metas)
+                        // Actualizar la lista y el adapter
+                        metas.clear()
+                        metas.addAll(nuevasMetas)
+                        
+                        // Enviar una nueva lista al adapter para que detecte el cambio
+                        metaAdapter.submitList(nuevasMetas.toList())
                         updateEmptyState()
                     }
                 }
@@ -122,6 +127,7 @@ class MetasActivity : AppCompatActivity() {
         // Referencias a las vistas del diálogo
         val tvNombreMeta = dialog.findViewById<TextView>(R.id.tvNombreMeta)
         val tvProgresoActual = dialog.findViewById<TextView>(R.id.tvProgresoActual)
+        val tvPorcentaje = dialog.findViewById<TextView>(R.id.tvPorcentaje)
         val progressBar = dialog.findViewById<ProgressBar>(R.id.progressBar)
         val etMonto = dialog.findViewById<TextInputEditText>(R.id.etMonto)
         val btnCancelar = dialog.findViewById<MaterialButton>(R.id.btnCancelar)
@@ -135,10 +141,14 @@ class MetasActivity : AppCompatActivity() {
         val porcentaje = meta.getPorcentaje().toInt()
         progressBar.max = 100
         progressBar.progress = porcentaje
-        progressBar.progressDrawable.setColorFilter(
-            Color.parseColor(meta.color),
-            PorterDuff.Mode.SRC_IN
-        )
+        
+        // Aplicar color personalizado de la meta
+        val colorHex = Color.parseColor(meta.color)
+        progressBar.progressDrawable.setColorFilter(colorHex, PorterDuff.Mode.SRC_IN)
+        
+        // Porcentaje con color de la meta
+        tvPorcentaje.text = "$porcentaje% completado"
+        tvPorcentaje.setTextColor(colorHex)
 
         // Botón cancelar
         btnCancelar.setOnClickListener {
