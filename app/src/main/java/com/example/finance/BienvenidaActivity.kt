@@ -12,9 +12,15 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.lifecycleScope
 import com.example.finance.databinding.ActivityBienvenidaBinding
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
+/**
+ * Activity de bienvenida que se muestra después del primer login.
+ * Presenta las características de la app y redirige al flujo apropiado.
+ */
 class BienvenidaActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityBienvenidaBinding
@@ -165,8 +171,39 @@ class BienvenidaActivity : AppCompatActivity() {
             
             // Animación de salida del botón
             animateButtonPress(it) {
-                // Navegar al Dashboard con transición
-                val intent = Intent(this, DashboardActivity::class.java)
+                checkPresupuestoAndNavigate()
+            }
+        }
+    }
+    
+    /**
+     * Verifica si el usuario tiene presupuesto configurado y navega apropiadamente.
+     * - Si NO tiene presupuesto: va a ConfigurarPresupuestoInicialActivity
+     * - Si SÍ tiene presupuesto: va directamente a DashboardActivity
+     */
+    private fun checkPresupuestoAndNavigate() {
+        val userId = auth.currentUser?.uid ?: return
+        val app = application as FinanceApplication
+        val repository = app.repository
+        
+        lifecycleScope.launch {
+            try {
+                val presupuesto = repository.getPresupuestoMensual(userId)
+                
+                val intent = if (presupuesto > 0) {
+                    // Usuario ya tiene presupuesto, ir directo al Dashboard
+                    Intent(this@BienvenidaActivity, DashboardActivity::class.java)
+                } else {
+                    // Usuario no tiene presupuesto, ir a configurarlo
+                    Intent(this@BienvenidaActivity, ConfigurarPresupuestoInicialActivity::class.java)
+                }
+                
+                startActivity(intent)
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                finish()
+            } catch (e: Exception) {
+                // En caso de error, ir a configurar presupuesto
+                val intent = Intent(this@BienvenidaActivity, ConfigurarPresupuestoInicialActivity::class.java)
                 startActivity(intent)
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 finish()

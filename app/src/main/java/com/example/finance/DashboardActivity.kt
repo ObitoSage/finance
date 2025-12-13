@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finance.adapters.GastoAdapter
 import com.example.finance.databinding.ActivityDashboardBinding
@@ -123,6 +125,11 @@ class DashboardActivity : AppCompatActivity() {
         binding.btnConfigureBudget.setOnClickListener {
             navigateToConfigureBudget()
         }
+        
+        // Botón editar presupuesto
+        binding.btnEditBudget.setOnClickListener {
+            navigateToConfigureBudget()
+        }
 
         // Botón agregar gasto
         binding.btnAddExpense.setOnClickListener {
@@ -212,27 +219,33 @@ class DashboardActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Obtener gastos del mes actual
-                val endOfMonth = Calendar.getInstance().apply {
-                    set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
-                    set(Calendar.HOUR_OF_DAY, 23)
-                    set(Calendar.MINUTE, 59)
-                }.timeInMillis
+                // Usar repeatOnLifecycle para evitar "Job was cancelled"
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    // Obtener gastos del mes actual
+                    val endOfMonth = Calendar.getInstance().apply {
+                        set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
+                        set(Calendar.HOUR_OF_DAY, 23)
+                        set(Calendar.MINUTE, 59)
+                    }.timeInMillis
 
-                repository.getGastosByDateRange(userId, startOfMonth, endOfMonth)
-                    .collect { gastosEntity ->
-                        // Convertir entities a domain models
-                        gastos.clear()
-                        gastos.addAll(gastosEntity.toGastosDomain())
-                        
-                        // Actualizar UI
-                        updateGastosUI()
-                        updateChartData()
-                        updateBalanceUI()
-                        updateProgressUI()
-                    }
+                    repository.getGastosByDateRange(userId, startOfMonth, endOfMonth)
+                        .collect { gastosEntity ->
+                            // Convertir entities a domain models
+                            gastos.clear()
+                            gastos.addAll(gastosEntity.toGastosDomain())
+                            
+                            // Actualizar UI
+                            updateGastosUI()
+                            updateChartData()
+                            updateBalanceUI()
+                            updateProgressUI()
+                        }
+                }
             } catch (e: Exception) {
-                showToast("Error al cargar gastos: ${e.message}")
+                // Solo mostrar error si no es por cancelación
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    showToast("Error al cargar gastos: ${e.message}")
+                }
                 gastos.clear()
                 updateGastosUI()
                 updateChartData()
@@ -260,24 +273,30 @@ class DashboardActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Obtener ingresos del mes actual
-                val endOfMonth = Calendar.getInstance().apply {
-                    set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
-                    set(Calendar.HOUR_OF_DAY, 23)
-                    set(Calendar.MINUTE, 59)
-                }.timeInMillis
+                // Usar repeatOnLifecycle para evitar "Job was cancelled"
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    // Obtener ingresos del mes actual
+                    val endOfMonth = Calendar.getInstance().apply {
+                        set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
+                        set(Calendar.HOUR_OF_DAY, 23)
+                        set(Calendar.MINUTE, 59)
+                    }.timeInMillis
 
-                repository.getIngresosByDateRange(userId, startOfMonth, endOfMonth)
-                    .collect { ingresosEntity ->
-                        // Convertir entities a domain models
-                        ingresos.clear()
-                        ingresos.addAll(ingresosEntity.toIngresosDomain())
-                        
-                        // Actualizar UI
-                        updateBalanceUI()
-                    }
+                    repository.getIngresosByDateRange(userId, startOfMonth, endOfMonth)
+                        .collect { ingresosEntity ->
+                            // Convertir entities a domain models
+                            ingresos.clear()
+                            ingresos.addAll(ingresosEntity.toIngresosDomain())
+                            
+                            // Actualizar UI
+                            updateBalanceUI()
+                        }
+                }
             } catch (e: Exception) {
-                showToast("Error al cargar ingresos: ${e.message}")
+                // Solo mostrar error si no es por cancelación
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    showToast("Error al cargar ingresos: ${e.message}")
+                }
                 ingresos.clear()
                 updateBalanceUI()
             }
@@ -285,7 +304,10 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun updateBudgetUI() {
-        val presupuestoDiario = if (presupuestoMensual > 0) (presupuestoMensual / 30).toInt() else 0
+        // Calcular presupuesto diario usando los días REALES del mes actual (igual que en ConfigurarPresupuestoInicialActivity)
+        val calendar = Calendar.getInstance()
+        val diasDelMes = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val presupuestoDiario = if (presupuestoMensual > 0) (presupuestoMensual / diasDelMes).toInt() else 0
         val gastoHoy = calcularGastoHoy()
         
         if (presupuestoDiario > 0) {
@@ -337,7 +359,10 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun updateProgressUI() {
-        val presupuestoDiario = if (presupuestoMensual > 0) (presupuestoMensual / 30).toInt() else 0
+        // Calcular presupuesto diario usando los días REALES del mes actual
+        val calendar = Calendar.getInstance()
+        val diasDelMes = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val presupuestoDiario = if (presupuestoMensual > 0) (presupuestoMensual / diasDelMes).toInt() else 0
         
         if (presupuestoDiario > 0) {
             binding.layoutProgress.visibility = View.VISIBLE

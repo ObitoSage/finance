@@ -1,5 +1,6 @@
 package com.example.finance
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -16,6 +17,16 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Activity para configurar el presupuesto inicial del usuario.
+ * 
+ * Cumple con las siguientes funcionalidades (FIN-36 a FIN-40):
+ * - FIN-36: UI diseñada con campos de entrada formateados
+ * - FIN-37: Campos para ingreso de presupuesto mensual con formato de moneda
+ * - FIN-38: Cálculo automático de presupuesto diario basado en días del mes
+ * - FIN-39: Guardado en Room Database con validaciones
+ * - FIN-40: Opción "Configurar después" para omitir este paso
+ */
 class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityConfigurarPresupuestoInicialBinding
@@ -26,6 +37,11 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
     
     // Formato de moneda boliviana
     private val currencyFormat = NumberFormat.getNumberInstance(Locale("es", "BO"))
+    
+    companion object {
+        private const val PREFS_NAME = "FinanceAppPrefs"
+        private const val KEY_PRESUPUESTO_CONFIGURADO = "presupuestoConfigurado"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +49,52 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        
+        // Verificar sesión
+        if (auth.currentUser == null) {
+            navigateToLogin()
+            return
+        }
+        
         repository = (application as FinanceApplication).repository
 
         setupInputListener()
         setupClickListeners()
+        loadExistingBudget()
+    }
+    
+    /**
+     * FIN-39: Cargar presupuesto existente si ya fue configurado.
+     * Permite editar el presupuesto en lugar de solo crear uno nuevo.
+     */
+    private fun loadExistingBudget() {
+        val userId = auth.currentUser?.uid ?: return
+        
+        lifecycleScope.launch {
+            try {
+                val presupuestoExistente = repository.getPresupuestoMensual(userId)
+                if (presupuestoExistente > 0) {
+                    presupuestoMensual = presupuestoExistente.toLong()
+                    val formatted = currencyFormat.format(presupuestoMensual)
+                    binding.etPresupuestoMensual.setText(formatted)
+                    binding.etPresupuestoMensual.setSelection(formatted.length)
+                    updateDailyBudget()
+                    updateButtonState()
+                    
+                    // Cambiar texto del botón a "Actualizar"
+                    binding.btnGuardar.text = "Actualizar presupuesto"
+                }
+            } catch (e: Exception) {
+                // No hacer nada, simplemente no cargar presupuesto
+            }
+        }
+    }
+    
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun setupInputListener() {
@@ -119,6 +177,11 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
         updateButtonState()
     }
 
+    /**
+     * FIN-38: Cálculo automático de presupuesto diario.
+     * Calcula el presupuesto diario basado en los días reales del mes actual.
+     * Muestra información útil sobre días restantes y promedio diario.
+     */
     private fun updateDailyBudget() {
         if (presupuestoMensual > 0) {
             // Calcular días del mes actual
@@ -127,7 +190,7 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
             val diaActual = calendar.get(Calendar.DAY_OF_MONTH)
             val diasRestantes = diasDelMes - diaActual + 1
             
-            // Calcular presupuesto diario usando días reales
+            // FIN-38: Cálculo automático de presupuesto diario usando días reales
             val presupuestoDiario = (presupuestoMensual.toDouble() / diasDelMes).toInt()
             
             // Mostrar card con información
@@ -149,44 +212,93 @@ class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
         binding.btnGuardar.isEnabled = presupuestoMensual > 0
     }
 
+    /**
+     * FIN-39: Guardar configuración de presupuesto en base de datos.
+     * Guarda el presupuesto en Room Database vinculado al usuario de Firebase Auth.
+     * Valida datos antes de guardar y maneja errores apropiadamente.
+     */
     private fun guardarPresupuesto() {
+        // Validación: Presupuesto debe ser mayor a 0
         if (presupuestoMensual <= 0) {
             Toast.makeText(this, "Por favor ingresa un presupuesto mensual válido", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Validación: Usuario debe estar autenticado
         val userId = auth.currentUser?.uid
         if (userId == null) {
             Toast.makeText(this, "Error: Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            navigateToLogin()
             return
         }
 
         // Mostrar progreso
         binding.btnGuardar.isEnabled = false
+        val originalText = binding.btnGuardar.text
         binding.btnGuardar.text = "Guardando..."
 
-        // Guardar en Room usando coroutines
+        // FIN-39: Guardar en Room Database usando coroutines
         lifecycleScope.launch {
             try {
+                // Guardar o actualizar presupuesto en Room
                 repository.updatePresupuestoMensual(userId, presupuestoMensual.toDouble())
-                Toast.makeText(this@ConfigurarPresupuestoInicialActivity, "Presupuesto guardado exitosamente", Toast.LENGTH_SHORT).show()
+                
+                // Marcar que el presupuesto fue configurado
+                markPresupuestoConfigurado()
+                
+                Toast.makeText(
+                    this@ConfigurarPresupuestoInicialActivity, 
+                    "✓ Presupuesto guardado exitosamente", 
+                    Toast.LENGTH_SHORT
+                ).show()
+                
+                // Navegar al Dashboard con animación
                 navigateToDashboard()
             } catch (e: Exception) {
+                // Restaurar estado del botón en caso de error
                 binding.btnGuardar.isEnabled = true
-                binding.btnGuardar.text = getString(R.string.start_using_app)
-                Toast.makeText(this@ConfigurarPresupuestoInicialActivity, "Error al guardar: ${e.message}", Toast.LENGTH_SHORT).show()
+                binding.btnGuardar.text = originalText
+                
+                Toast.makeText(
+                    this@ConfigurarPresupuestoInicialActivity, 
+                    "Error al guardar: ${e.message}", 
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
+    
+    /**
+     * Marca en SharedPreferences que el usuario ya configuró su presupuesto.
+     */
+    private fun markPresupuestoConfigurado() {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_PRESUPUESTO_CONFIGURADO, true)
+            .apply()
+    }
 
+    /**
+     * FIN-40: Opción "Configurar después".
+     * Permite al usuario omitir este paso y continuar sin configurar presupuesto.
+     */
     private fun navigateToDashboard() {
         val intent = Intent(this, DashboardActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }
 
     private fun formatCurrency(amount: Double): String {
         return "Bs ${currencyFormat.format(amount.toLong())}"
+    }
+    
+    /**
+     * Verifica si el usuario ya configuró su presupuesto.
+     */
+    fun isPresupuestoConfigurado(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_PRESUPUESTO_CONFIGURADO, false)
     }
 }
