@@ -2,9 +2,11 @@ package com.example.finance.dataBase.repository
 
 import com.example.finance.Dao.GastoDao
 import com.example.finance.Dao.IngresoDao
+import com.example.finance.Dao.MetaDao
 import com.example.finance.Dao.UsuarioDao
 import com.example.finance.dataBase.entities.GastoEntity
 import com.example.finance.dataBase.entities.IngresoEntity
+import com.example.finance.dataBase.entities.MetaEntity
 import com.example.finance.dataBase.entities.UsuarioEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -13,7 +15,8 @@ import kotlinx.coroutines.flow.Flow
 class FinanceRepository(
     private val gastoDao: GastoDao,
     private val ingresoDao: IngresoDao,
-    private val usuarioDao: UsuarioDao
+    private val usuarioDao: UsuarioDao,
+    private val metaDao: MetaDao
 ) {
 
     //GASTOS
@@ -128,4 +131,39 @@ class FinanceRepository(
 
     suspend fun deleteUsuario(userId: String) =
         usuarioDao.deleteUsuarioById(userId)
+    
+    // METAS
+    
+    fun getAllMetas(userId: String): Flow<List<MetaEntity>> = 
+        metaDao.getAllMetasByUser(userId)
+    
+    suspend fun getAllMetasList(userId: String): List<MetaEntity> = 
+        metaDao.getAllMetasByUserList(userId)
+    
+    suspend fun insertMeta(meta: MetaEntity): Long = 
+        metaDao.insertMeta(meta)
+    
+    suspend fun updateMeta(meta: MetaEntity) = 
+        metaDao.updateMeta(meta)
+    
+    suspend fun deleteMeta(meta: MetaEntity) = 
+        metaDao.deleteMeta(meta)
+    
+    suspend fun deleteMetaById(metaId: Long) = 
+        metaDao.deleteMetaById(metaId)
+    
+    suspend fun getMetaById(metaId: Long): MetaEntity? = 
+        metaDao.getMetaById(metaId)
+    
+    suspend fun agregarDineroAMeta(metaId: Long, monto: Double) = 
+        metaDao.agregarDinero(metaId, monto)
+    
+    fun getMetasCompletadas(userId: String): Flow<List<MetaEntity>> = 
+        metaDao.getMetasCompletadas(userId)
+    
+    fun getMetasPendientes(userId: String): Flow<List<MetaEntity>> = 
+        metaDao.getMetasPendientes(userId)
+    
+    suspend fun getCountMetas(userId: String): Int = 
+        metaDao.getCountMetas(userId)
 }

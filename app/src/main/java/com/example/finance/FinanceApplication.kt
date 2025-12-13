@@ -20,7 +20,8 @@ class FinanceApplication : Application() {
         FinanceRepository(
             gastoDao = database.gastoDao(),
             ingresoDao = database.ingresoDao(),
-            usuarioDao = database.usuarioDao()
+            usuarioDao = database.usuarioDao(),
+            metaDao = database.metaDao()
         )
     }
 }

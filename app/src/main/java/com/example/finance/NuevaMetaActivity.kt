@@ -6,7 +6,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.finance.databinding.ActivityNuevaMetaBinding
+import com.example.finance.dataClass.Meta
+import com.example.finance.dataBase.EntityMappers.toEntity
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,6 +19,7 @@ import java.util.*
 class NuevaMetaActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNuevaMetaBinding
+    private lateinit var auth: FirebaseAuth
     private var colorSeleccionado: String = "#EF4444"
     private var iconoSeleccionado: String = "target"
     private var fechaLimiteTimestamp: Long? = null
@@ -28,6 +34,8 @@ class NuevaMetaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNuevaMetaBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        auth = FirebaseAuth.getInstance()
 
         setupUI()
         setupClickListeners()
@@ -152,10 +160,38 @@ class NuevaMetaActivity : AppCompatActivity() {
             return
         }
 
-        // TODO: Guardar en base de datos
-        // Por ahora solo mostrar mensaje
-        showToast("Meta '$nombre' creada exitosamente")
-        finish()
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            showToast("Error: Usuario no autenticado")
+            return
+        }
+
+        // Crear objeto Meta
+        val nuevaMeta = Meta(
+            id = "",
+            nombre = nombre,
+            icono = iconoSeleccionado,
+            ahorrado = 0.0,
+            objetivo = monto,
+            color = colorSeleccionado,
+            fechaLimite = fechaLimiteTimestamp
+        )
+
+        // Guardar en base de datos
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        lifecycleScope.launch {
+            try {
+                val metaEntity = nuevaMeta.toEntity(userId)
+                repository.insertMeta(metaEntity)
+                
+                showToast("Meta '$nombre' creada exitosamente")
+                finish()
+            } catch (e: Exception) {
+                showToast("Error al guardar meta: ${e.message}")
+            }
+        }
     }
 
     private fun showToast(message: String) {

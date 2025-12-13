@@ -1,25 +1,49 @@
 package com.example.finance
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finance.adapters.MetaAdapter
 import com.example.finance.databinding.ActivityMetasBinding
 import com.example.finance.dataClass.Meta
+import com.example.finance.dataBase.EntityMappers.toEntity
+import com.example.finance.dataBase.EntityMappers.toMetasDomain
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.*
 
 class MetasActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMetasBinding
     private lateinit var metaAdapter: MetaAdapter
+    private lateinit var auth: FirebaseAuth
     private val metas = mutableListOf<Meta>()
+    
+    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
+        maximumFractionDigits = 0
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMetasBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()
+        
         setupUI()
         setupRecyclerView()
         setupClickListeners()
@@ -57,40 +81,27 @@ class MetasActivity : AppCompatActivity() {
     }
 
     private fun loadMetas() {
-        // TODO: Cargar desde base de datos
-        // Por ahora, metas de ejemplo
-        metas.clear()
-        metas.addAll(
-            listOf(
-                Meta(
-                    id = "1",
-                    nombre = "Fondo de emergencia",
-                    icono = "target",
-                    ahorrado = 1200000.0,
-                    objetivo = 5000000.0,
-                    color = "#EF4444"
-                ),
-                Meta(
-                    id = "2",
-                    nombre = "Vacaciones",
-                    icono = "plane",
-                    ahorrado = 850000.0,
-                    objetivo = 3000000.0,
-                    color = "#3B82F6"
-                ),
-                Meta(
-                    id = "3",
-                    nombre = "Inversión",
-                    icono = "piggybank",
-                    ahorrado = 2400000.0,
-                    objetivo = 10000000.0,
-                    color = "#10B981"
-                )
-            )
-        )
-        
-        metaAdapter.submitList(metas)
-        updateEmptyState()
+        val userId = auth.currentUser?.uid ?: return
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        lifecycleScope.launch {
+            try {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    repository.getAllMetas(userId).collect { metasEntity ->
+                        metas.clear()
+                        metas.addAll(metasEntity.toMetasDomain())
+                        
+                        metaAdapter.submitList(metas)
+                        updateEmptyState()
+                    }
+                }
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    showToast("Error al cargar metas: ${e.message}")
+                }
+            }
+        }
     }
 
     private fun updateEmptyState() {
@@ -103,14 +114,80 @@ class MetasActivity : AppCompatActivity() {
     }
 
     private fun agregarDineroAMeta(meta: Meta) {
-        // TODO: Implementar diálogo para agregar dinero a la meta
-        showToast("Agregar dinero a: ${meta.nombre}")
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_agregar_dinero)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // Referencias a las vistas del diálogo
+        val tvNombreMeta = dialog.findViewById<TextView>(R.id.tvNombreMeta)
+        val tvProgresoActual = dialog.findViewById<TextView>(R.id.tvProgresoActual)
+        val progressBar = dialog.findViewById<ProgressBar>(R.id.progressBar)
+        val etMonto = dialog.findViewById<TextInputEditText>(R.id.etMonto)
+        val btnCancelar = dialog.findViewById<MaterialButton>(R.id.btnCancelar)
+        val btnAgregar = dialog.findViewById<MaterialButton>(R.id.btnAgregar)
+
+        // Configurar datos de la meta
+        tvNombreMeta.text = meta.nombre
+        val progresoText = "${formatCurrency(meta.ahorrado)} de ${formatCurrency(meta.objetivo)}"
+        tvProgresoActual.text = progresoText
+        
+        val porcentaje = meta.getPorcentaje().toInt()
+        progressBar.max = 100
+        progressBar.progress = porcentaje
+        progressBar.progressDrawable.setColorFilter(
+            Color.parseColor(meta.color),
+            PorterDuff.Mode.SRC_IN
+        )
+
+        // Botón cancelar
+        btnCancelar.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Botón agregar
+        btnAgregar.setOnClickListener {
+            val montoStr = etMonto.text.toString().trim()
+            
+            if (montoStr.isEmpty()) {
+                etMonto.error = "Ingresa un monto"
+                return@setOnClickListener
+            }
+
+            val monto = montoStr.toDoubleOrNull()
+            if (monto == null || monto <= 0) {
+                etMonto.error = "Ingresa un monto válido"
+                return@setOnClickListener
+            }
+
+            // Agregar dinero a la meta en la base de datos
+            val userId = auth.currentUser?.uid ?: return@setOnClickListener
+            val app = application as FinanceApplication
+            val repository = app.repository
+
+            lifecycleScope.launch {
+                try {
+                    val metaId = meta.id.toLongOrNull() ?: return@launch
+                    repository.agregarDineroAMeta(metaId, monto)
+                    
+                    showToast("Se agregaron ${formatCurrency(monto)} a ${meta.nombre}")
+                    dialog.dismiss()
+                } catch (e: Exception) {
+                    showToast("Error al agregar dinero: ${e.message}")
+                }
+            }
+        }
+
+        dialog.show()
+    }
+    
+    private fun formatCurrency(amount: Double): String {
+        return currencyFormat.format(amount).replace("COP", "$")
     }
 
     override fun onResume() {
         super.onResume()
-        // Recargar metas cuando se vuelve a la pantalla
-        loadMetas()
+        // Las metas se recargan automáticamente gracias al Flow
     }
 
     private fun showToast(message: String) {

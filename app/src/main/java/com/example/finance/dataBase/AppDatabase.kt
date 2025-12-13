@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.finance.Dao.GastoDao
 import com.example.finance.Dao.IngresoDao
+import com.example.finance.Dao.MetaDao
 import com.example.finance.Dao.UsuarioDao
 import com.example.finance.dataBase.entities.GastoEntity
 import com.example.finance.dataBase.entities.IngresoEntity
+import com.example.finance.dataBase.entities.MetaEntity
 import com.example.finance.dataBase.entities.UsuarioEntity
 
 //Usa el patrón Singleton para garantizar una única instancia de la base de datos.
@@ -17,9 +19,10 @@ import com.example.finance.dataBase.entities.UsuarioEntity
     entities = [
         GastoEntity::class,
         IngresoEntity::class,
-        UsuarioEntity::class
+        UsuarioEntity::class,
+        MetaEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun gastoDao(): GastoDao
     abstract fun ingresoDao(): IngresoDao
     abstract fun usuarioDao(): UsuarioDao
+    abstract fun metaDao(): MetaDao
 
     companion object {
         private const val DATABASE_NAME = "finance_database"
