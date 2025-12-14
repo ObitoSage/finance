@@ -66,6 +66,11 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         
+
+        <!-- Editar Perfil Activity -->
+        <activity
+            android:name=".EditarPerfilActivity"
+
         <!-- Registrar Gasto Activity -->
         <activity
             android:name=".RegistrarGastoActivity"

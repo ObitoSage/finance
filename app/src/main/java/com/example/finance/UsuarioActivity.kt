@@ -51,6 +51,12 @@ class UsuarioActivity : AppCompatActivity() {
         loadUserData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Recargar datos cuando regresamos de editar perfil
+        loadUserData()
+    }
+
     private fun setupClickListeners() {
         // Botón volver
         binding.btnBack.setOnClickListener {
@@ -59,8 +65,8 @@ class UsuarioActivity : AppCompatActivity() {
 
         // Botón editar perfil
         binding.btnEditProfile.setOnClickListener {
-            // TODO: Navegar a pantalla de editar perfil
-            showToast("Editar perfil (próximamente)")
+            val intent = Intent(this, EditarPerfilActivity::class.java)
+            startActivity(intent)
         }
 
         // Botón cerrar sesión

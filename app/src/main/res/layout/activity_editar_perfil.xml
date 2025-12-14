@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<ScrollView
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="24dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_button_secondary"
+                android:src="@drawable/ic_arrow_back"
+                android:contentDescription="Volver"
+                android:tint="@color/primary_dark" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Editar perfil"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_dark" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Actualiza tu información personal"
+                android:textSize="14sp"
+                android:textColor="@color/gray_400"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- Contenido Principal -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp">
+
+            <!-- Mensaje de éxito -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSuccessMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#F0FDF4"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#BBF7D0">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_small">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_check"
+                            android:tint="#22C55E"
+                            android:contentDescription="Éxito" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cambios guardados exitosamente"
+                            android:textSize="17sp"
+                            android:textStyle="bold"
+                            android:textColor="#14532D" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tu perfil ha sido actualizado"
+                            android:textSize="14sp"
+                            android:textColor="#15803D"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Campo Nombre completo -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre completo *"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_600"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeColor="@color/gray_200"
+                app:boxBackgroundColor="@color/white"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/ic_alert_circle"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_check"
+                app:startIconDrawable="@drawable/ic_user"
+                app:startIconTint="@color/primary_dark"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNombre"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="Ingresa tu nombre completo"
+                    android:textSize="17sp"
+                    android:textColor="@color/gray_900"
+                    android:textColorHint="@color/gray_400"
+                    android:inputType="textPersonName"
+                    android:paddingStart="56dp"
+                    android:paddingEnd="48dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Campo Email -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Correo electrónico *"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_600"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeColor="@color/gray_200"
+                app:boxBackgroundColor="@color/white"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/ic_alert_circle"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_check"
+                app:startIconDrawable="@drawable/ic_mail"
+                app:startIconTint="@color/primary_dark"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="correo@ejemplo.com"
+                    android:textSize="17sp"
+                    android:textColor="@color/gray_900"
+                    android:textColorHint="@color/gray_400"
+                    android:inputType="textEmailAddress"
+                    android:paddingStart="56dp"
+                    android:paddingEnd="48dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Separador -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/gray_100"
+                android:layout_marginVertical="16dp" />
+
+            <!-- Sección de cambio de contraseña -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cambiar contraseña"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_dark"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deja estos campos vacíos si no deseas cambiar tu contraseña"
+                android:textSize="14sp"
+                android:textColor="@color/gray_500"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Nueva contraseña -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nueva contraseña"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_600"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNuevaPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeColor="@color/gray_200"
+                app:boxBackgroundColor="@color/white"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/ic_alert_circle"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/primary_dark"
+                app:hintEnabled="false"
+                app:passwordToggleDrawable="@drawable/ic_eye"
+                app:passwordToggleTint="@color/gray_400">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNuevaPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="Mínimo 6 caracteres"
+                    android:textSize="17sp"
+                    android:textColor="@color/gray_900"
+                    android:textColorHint="@color/gray_400"
+                    android:inputType="textPassword"
+                    android:paddingStart="56dp"
+                    android:paddingEnd="48dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Confirmar contraseña -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirmar nueva contraseña"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_600"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilConfirmarPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeColor="@color/gray_200"
+                app:boxBackgroundColor="@color/white"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/ic_alert_circle"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/primary_dark"
+                app:hintEnabled="false"
+                app:passwordToggleDrawable="@drawable/ic_eye"
+                app:passwordToggleTint="@color/gray_400">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etConfirmarPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="Repite tu nueva contraseña"
+                    android:textSize="17sp"
+                    android:textColor="@color/gray_900"
+                    android:textColorHint="@color/gray_400"
+                    android:inputType="textPassword"
+                    android:paddingStart="56dp"
+                    android:paddingEnd="48dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Requisitos de contraseña -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPasswordRequirements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/primary_light"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Requisitos de contraseña:"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_600"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Requisito: Mínimo 6 caracteres -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <FrameLayout
+                            android:id="@+id/iconMinLength"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/bg_icon_small">
+
+                            <ImageView
+                                android:id="@+id/checkMinLength"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:tint="@color/white"
+                                android:visibility="gone"
+                                android:contentDescription="Check" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tvMinLength"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mínimo 6 caracteres"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray_600"
+                            android:layout_marginStart="8dp" />
+                    </LinearLayout>
+
+                    <!-- Requisito: Las contraseñas coinciden -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <FrameLayout
+                            android:id="@+id/iconPasswordMatch"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/bg_icon_small">
+
+                            <ImageView
+                                android:id="@+id/checkPasswordMatch"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:tint="@color/white"
+                                android:visibility="gone"
+                                android:contentDescription="Check" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tvPasswordMatch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Las contraseñas coinciden"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray_600"
+                            android:layout_marginStart="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Botones de acción -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelar"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Cancelar"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_700"
+                    android:backgroundTint="@color/gray_100"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_close"
+                    app:iconTint="@color/gray_700"
+                    android:textAllCaps="false" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGuardar"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Guardar"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:backgroundTint="#14B8A6"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_save"
+                    app:iconTint="@color/white"
+                    android:textAllCaps="false" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
+
+<!-- Diálogo de confirmación al cancelar -->
+<FrameLayout
+        android:id="@+id/dialogOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="24dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center_horizontal">
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_small"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_alert_circle"
+                        android:tint="#EA580C"
+                        android:contentDescription="Alerta" />
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="¿Descartar cambios?"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_dark"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tienes cambios sin guardar. Si sales ahora, se perderán todos los cambios."
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_600"
+                    android:gravity="center"
+                    android:layout_marginBottom="24dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnContinuarEditando"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:text="Continuar editando"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_700"
+                        android:backgroundTint="@color/gray_100"
+                        app:cornerRadius="12dp"
+                        android:textAllCaps="false" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDescartar"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="Descartar"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:backgroundTint="#EF4444"
+                        app:cornerRadius="12dp"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+
+</FrameLayout>
