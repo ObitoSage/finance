@@ -64,6 +64,12 @@
             android:name=".UsuarioActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        
+        <!-- Editar Perfil Activity -->
+        <activity
+            android:name=".EditarPerfilActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
             
     </application>
 
