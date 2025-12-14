@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.finance.databinding.ActivityUsuarioBinding
+import com.example.finance.dataBase.repository.FinanceRepository
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -15,7 +17,7 @@ class UsuarioActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityUsuarioBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private lateinit var repository: FinanceRepository
 
     // Datos del usuario
     private var userName: String = ""
@@ -37,7 +39,7 @@ class UsuarioActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+        repository = (application as FinanceApplication).repository
 
         // Verificar sesión
         if (auth.currentUser == null) {
@@ -81,36 +83,9 @@ class UsuarioActivity : AppCompatActivity() {
         userEmail = currentUser.email ?: "usuario@ejemplo.com"
         binding.tvEmail.text = userEmail
 
-        // Obtener nombre de usuario desde Firebase Auth o Firestore
-        userName = currentUser.displayName ?: ""
-
-        // Si no hay displayName, cargar desde Firestore
-        if (userName.isEmpty()) {
-            db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        userName = document.getString("nombre") ?: "Usuario"
-                        updateUserNameUI()
-                        
-                        // Cargar fecha de registro si existe
-                        val timestamp = document.getTimestamp("fechaRegistro")
-                        if (timestamp != null) {
-                            memberSince = formatMemberSince(timestamp.toDate())
-                            updateMemberSinceUI()
-                        }
-                    } else {
-                        userName = "Usuario"
-                        updateUserNameUI()
-                    }
-                }
-                .addOnFailureListener {
-                    userName = "Usuario"
-                    updateUserNameUI()
-                }
-        } else {
-            updateUserNameUI()
-        }
+        // Obtener nombre de usuario desde Firebase Auth
+        userName = currentUser.displayName ?: currentUser.email?.substringBefore("@") ?: "Usuario"
+        updateUserNameUI()
 
         // Obtener fecha de creación de la cuenta
         val metadata = currentUser.metadata
@@ -120,42 +95,37 @@ class UsuarioActivity : AppCompatActivity() {
             updateMemberSinceUI()
         }
 
-        // Cargar estadísticas del usuario
+        // Cargar estadísticas del usuario desde Room
         loadUserStatistics(userId)
     }
 
     private fun loadUserStatistics(userId: String) {
-        // Cargar total de gastos
-        db.collection("gastos")
-            .whereEqualTo("userId", userId)
-            .get()
-            .addOnSuccessListener { documents ->
-                totalGastado = documents.sumOf { it.getDouble("monto") ?: 0.0 }
+        lifecycleScope.launch {
+            try {
+                // Cargar total de gastos desde Room
+                totalGastado = repository.getTotalGastos(userId)
                 binding.tvTotalGastado.text = formatCurrency(totalGastado)
-                // Actualizar ahorro después de cargar gastos
+
+                // Cargar total de ingresos desde Room
+                totalIngresos = repository.getTotalIngresos(userId)
+
+                // Actualizar ahorro
                 updateAhorroTotal()
-            }
-            .addOnFailureListener {
+
+                // Por ahora, metas en 0 (se puede implementar después con Room)
+                metasCompletadas = 0
+                metasActivas = 0
+                binding.tvMetasCompletadas.text = "0"
+                binding.tvMetasActivas.text = "0"
+            } catch (e: Exception) {
                 totalGastado = 0.0
-                binding.tvTotalGastado.text = formatCurrency(0.0)
-            }
-
-        // Cargar total de ingresos
-        db.collection("ingresos")
-            .whereEqualTo("userId", userId)
-            .get()
-            .addOnSuccessListener { documents ->
-                totalIngresos = documents.sumOf { it.getDouble("monto") ?: 0.0 }
-                // Actualizar ahorro después de cargar ingresos
-                updateAhorroTotal()
-            }
-            .addOnFailureListener {
                 totalIngresos = 0.0
+                binding.tvTotalGastado.text = formatCurrency(0.0)
                 binding.tvTotalAhorrado.text = formatCurrency(0.0)
+                binding.tvMetasCompletadas.text = "0"
+                binding.tvMetasActivas.text = "0"
             }
-
-        // Cargar metas desde Firestore
-        loadMetas(userId)
+        }
     }
 
     private fun updateAhorroTotal() {
@@ -163,46 +133,6 @@ class UsuarioActivity : AppCompatActivity() {
         binding.tvTotalAhorrado.text = formatCurrency(if (totalAhorrado >= 0) totalAhorrado else 0.0)
     }
 
-    private fun loadMetas(userId: String) {
-        // Verificar si existe la colección de metas
-        db.collection("metas")
-            .whereEqualTo("userId", userId)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    // Si no hay metas, mostrar 0
-                    metasCompletadas = 0
-                    metasActivas = 0
-                    binding.tvMetasCompletadas.text = "0"
-                    binding.tvMetasActivas.text = "0"
-                } else {
-                    // Contar metas completadas y activas
-                    metasCompletadas = 0
-                    metasActivas = 0
-                    
-                    for (document in documents) {
-                        val completada = document.getBoolean("completada") ?: false
-                        val activa = document.getBoolean("activa") ?: true
-                        
-                        if (completada) {
-                            metasCompletadas++
-                        } else if (activa) {
-                            metasActivas++
-                        }
-                    }
-                    
-                    binding.tvMetasCompletadas.text = metasCompletadas.toString()
-                    binding.tvMetasActivas.text = metasActivas.toString()
-                }
-            }
-            .addOnFailureListener {
-                // Si hay error o no existe la colección, mostrar 0
-                metasCompletadas = 0
-                metasActivas = 0
-                binding.tvMetasCompletadas.text = "0"
-                binding.tvMetasActivas.text = "0"
-            }
-    }
 
     private fun updateUserNameUI() {
         binding.tvUserName.text = userName

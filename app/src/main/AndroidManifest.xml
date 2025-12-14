@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".FinanceApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -65,9 +66,32 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         
+
         <!-- Editar Perfil Activity -->
         <activity
             android:name=".EditarPerfilActivity"
+
+        <!-- Registrar Gasto Activity -->
+        <activity
+            android:name=".RegistrarGastoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Registrar Ingreso Activity -->
+        <activity
+            android:name=".RegistrarIngresoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Metas Activity -->
+        <activity
+            android:name=".MetasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- Nueva Meta Activity -->
+        <activity
+            android:name=".NuevaMetaActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
             

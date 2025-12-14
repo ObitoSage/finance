@@ -123,6 +123,7 @@
     <string name="dashboard_profile">Usuario</string>
     <string name="dashboard_expense">Gasto</string>
     <string name="dashboard_income_btn">Ingreso</string>
+    <string name="edit_budget">Editar presupuesto</string>
     
     <!-- Usuario Activity -->
     <string name="profile_title">Mi perfil</string>
