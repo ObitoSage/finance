@@ -15,16 +15,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 
-/**
- * Activity para registrar un nuevo gasto.
- * 
- * Funcionalidades:
- * - Selección de categoría mediante grid
- * - Teclado numérico personalizado para ingresar el monto
- * - Campo opcional para agregar notas
- * - Guarda el gasto en Room Database vinculado al usuario de Firebase Auth
- * - Valida que haya categoría y monto antes de guardar
- */
+
 class RegistrarGastoActivity : AppCompatActivity() {
 
     // Views

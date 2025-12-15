@@ -15,16 +15,6 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 
-/**
- * Activity para registrar un nuevo ingreso.
- * 
- * Funcionalidades:
- * - Campo de entrada para el monto con formato
- * - Selección de categoría mediante grid
- * - Campo opcional para descripción
- * - Guarda el ingreso en Room Database vinculado al usuario de Firebase Auth
- * - Valida que haya categoría y monto antes de guardar
- */
 class RegistrarIngresoActivity : AppCompatActivity() {
 
     // Views
@@ -57,9 +47,6 @@ class RegistrarIngresoActivity : AppCompatActivity() {
         updateUI()
     }
 
-    /**
-     * Inicializa las referencias a las vistas.
-     */
     private fun initViews() {
         etMonto = findViewById(R.id.etMonto)
         gridCategorias = findViewById(R.id.gridCategorias)
