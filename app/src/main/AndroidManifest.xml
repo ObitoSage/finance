@@ -79,6 +79,12 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         
+        <!-- Categorias Activity -->
+        <activity
+            android:name=".CategoriasActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
         <!-- Registrar Ingreso Activity -->
         <activity
             android:name=".RegistrarIngresoActivity"

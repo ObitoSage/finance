@@ -143,8 +143,7 @@ class DashboardActivity : AppCompatActivity() {
 
         // Accesos rápidos
         binding.btnCategories.setOnClickListener {
-            // TODO: Navegar a categorías
-            showToast("Categorías (próximamente)")
+            startActivity(Intent(this, CategoriasActivity::class.java))
         }
 
         binding.btnGoals.setOnClickListener {
