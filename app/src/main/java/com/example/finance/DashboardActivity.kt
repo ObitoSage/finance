@@ -151,8 +151,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         binding.btnHistory.setOnClickListener {
-            // TODO: Navegar a historial
-            showToast("Historial (próximamente)")
+            startActivity(Intent(this, HistorialActivity::class.java))
         }
 
         binding.btnReport.setOnClickListener {
