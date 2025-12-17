@@ -125,16 +125,35 @@ class UsuarioActivity : AppCompatActivity() {
                 // Actualizar ahorro
                 updateAhorroTotal()
 
-                // Por ahora, metas en 0 (se puede implementar después con Room)
-                metasCompletadas = 0
-                metasActivas = 0
-                binding.tvMetasCompletadas.text = "0"
-                binding.tvMetasActivas.text = "0"
+                // Cargar metas reales desde Room
+                loadMetasData(userId)
             } catch (e: Exception) {
                 totalGastado = 0.0
                 totalIngresos = 0.0
                 binding.tvTotalGastado.text = formatCurrency(0.0)
                 binding.tvTotalAhorrado.text = formatCurrency(0.0)
+                binding.tvMetasCompletadas.text = "0"
+                binding.tvMetasActivas.text = "0"
+            }
+        }
+    }
+
+    private fun loadMetasData(userId: String) {
+        lifecycleScope.launch {
+            try {
+                // Obtener todas las metas del usuario
+                val todasLasMetas = repository.getAllMetasList(userId)
+                
+                // Separar metas completadas y activas
+                metasCompletadas = todasLasMetas.count { it.ahorrado >= it.objetivo }
+                metasActivas = todasLasMetas.count { it.ahorrado < it.objetivo }
+                
+                // Actualizar UI
+                binding.tvMetasCompletadas.text = metasCompletadas.toString()
+                binding.tvMetasActivas.text = metasActivas.toString()
+            } catch (e: Exception) {
+                metasCompletadas = 0
+                metasActivas = 0
                 binding.tvMetasCompletadas.text = "0"
                 binding.tvMetasActivas.text = "0"
             }
