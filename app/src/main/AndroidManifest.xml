@@ -114,6 +114,12 @@
             android:name=".ReporteActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        
+        <!-- Configurar Presupuesto Activity -->
+        <activity
+            android:name=".ConfigurarPresupuestoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
             
     </application>
 
