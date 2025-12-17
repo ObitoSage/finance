@@ -108,6 +108,12 @@
             android:name=".NuevaMetaActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        
+        <!-- Reporte Activity -->
+        <activity
+            android:name=".ReporteActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
             
     </application>
 

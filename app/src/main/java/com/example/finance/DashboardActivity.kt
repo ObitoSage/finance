@@ -155,8 +155,8 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         binding.btnReport.setOnClickListener {
-            // TODO: Navegar a reporte
-            showToast("Reporte del mes (próximamente)")
+            val intent = Intent(this, ReporteActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnProfile.setOnClickListener {
