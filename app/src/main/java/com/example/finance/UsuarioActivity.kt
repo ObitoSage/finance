@@ -1,8 +1,10 @@
 package com.example.finance
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.finance.databinding.ActivityUsuarioBinding
@@ -18,6 +20,17 @@ class UsuarioActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUsuarioBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var repository: FinanceRepository
+
+    // Launcher para editar perfil
+    private val editProfileLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Los cambios fueron guardados exitosamente, recargar datos
+            loadUserData()
+            showToast("Perfil actualizado correctamente")
+        }
+    }
 
     // Datos del usuario
     private var userName: String = ""
@@ -51,12 +64,6 @@ class UsuarioActivity : AppCompatActivity() {
         loadUserData()
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Recargar datos cuando regresamos de editar perfil
-        loadUserData()
-    }
-
     private fun setupClickListeners() {
         // Botón volver
         binding.btnBack.setOnClickListener {
@@ -66,7 +73,7 @@ class UsuarioActivity : AppCompatActivity() {
         // Botón editar perfil
         binding.btnEditProfile.setOnClickListener {
             val intent = Intent(this, EditarPerfilActivity::class.java)
-            startActivity(intent)
+            editProfileLauncher.launch(intent)
         }
 
         // Botón cerrar sesión
@@ -77,26 +84,32 @@ class UsuarioActivity : AppCompatActivity() {
 
     private fun loadUserData() {
         val currentUser = auth.currentUser ?: return
-        val userId = currentUser.uid
+        
+        // Recargar datos del usuario desde Firebase para obtener cambios recientes
+        currentUser.reload().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val userId = currentUser.uid
 
-        // Obtener email
-        userEmail = currentUser.email ?: "usuario@ejemplo.com"
-        binding.tvEmail.text = userEmail
+                // Obtener email
+                userEmail = currentUser.email ?: "usuario@ejemplo.com"
+                binding.tvEmail.text = userEmail
 
-        // Obtener nombre de usuario desde Firebase Auth
-        userName = currentUser.displayName ?: currentUser.email?.substringBefore("@") ?: "Usuario"
-        updateUserNameUI()
+                // Obtener nombre de usuario desde Firebase Auth
+                userName = currentUser.displayName ?: currentUser.email?.substringBefore("@") ?: "Usuario"
+                updateUserNameUI()
 
-        // Obtener fecha de creación de la cuenta
-        val metadata = currentUser.metadata
-        if (metadata != null) {
-            val creationTimestamp = metadata.creationTimestamp
-            memberSince = formatMemberSince(Date(creationTimestamp))
-            updateMemberSinceUI()
+                // Obtener fecha de creación de la cuenta
+                val metadata = currentUser.metadata
+                if (metadata != null) {
+                    val creationTimestamp = metadata.creationTimestamp
+                    memberSince = formatMemberSince(Date(creationTimestamp))
+                    updateMemberSinceUI()
+                }
+
+                // Cargar estadísticas del usuario desde Room
+                loadUserStatistics(userId)
+            }
         }
-
-        // Cargar estadísticas del usuario desde Room
-        loadUserStatistics(userId)
     }
 
     private fun loadUserStatistics(userId: String) {

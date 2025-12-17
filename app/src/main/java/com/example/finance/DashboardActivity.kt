@@ -64,12 +64,29 @@ class DashboardActivity : AppCompatActivity() {
         setupChart()
         setupClickListeners()
         loadUserData()
+        
+        // Verificar si viene de editar perfil
+        checkProfileUpdateMessage()
     }
 
     override fun onResume() {
         super.onResume()
         // Recargar datos cuando vuelve a la pantalla
         loadUserData()
+    }
+    
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        checkProfileUpdateMessage()
+    }
+    
+    private fun checkProfileUpdateMessage() {
+        if (intent.getBooleanExtra("PROFILE_UPDATED", false)) {
+            showToast("Los cambios se guardaron correctamente")
+            // Limpiar el extra para que no se muestre de nuevo
+            intent.removeExtra("PROFILE_UPDATED")
+        }
     }
 
     private fun setupUI() {
@@ -165,22 +182,29 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun loadUserData() {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Cargar nombre del usuario
-        userName = auth.currentUser?.displayName 
-            ?: auth.currentUser?.email?.substringBefore("@") 
-            ?: "Usuario"
+        val currentUser = auth.currentUser ?: return
         
-        val firstName = userName.split(" ").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "Usuario"
-        binding.tvGreeting.text = getString(R.string.dashboard_greeting, firstName)
+        // Recargar usuario desde Firebase para obtener cambios recientes
+        currentUser.reload().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val userId = currentUser.uid
 
-        // Cargar presupuesto mensual desde Firestore
-        loadBudget(userId)
-        
-        // Cargar gastos e ingresos desde Room Database
-        loadGastosFromRoom(userId)
-        loadIngresosFromRoom(userId)
+                // Cargar nombre del usuario
+                userName = currentUser.displayName 
+                    ?: currentUser.email?.substringBefore("@") 
+                    ?: "Usuario"
+                
+                val firstName = userName.split(" ").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "Usuario"
+                binding.tvGreeting.text = getString(R.string.dashboard_greeting, firstName)
+
+                // Cargar presupuesto mensual desde Firestore
+                loadBudget(userId)
+                
+                // Cargar gastos e ingresos desde Room Database
+                loadGastosFromRoom(userId)
+                loadIngresosFromRoom(userId)
+            }
+        }
     }
 
     private fun loadBudget(userId: String) {
