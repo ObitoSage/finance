@@ -12,9 +12,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.finance.databinding.ActivityCategoriasBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 
@@ -30,7 +32,6 @@ class CategoriasActivity : AppCompatActivity() {
     }
 
     data class Categoria(
-        val id: String,
         val nombre: String,
         val icono: Int,
         val gastado: Double,
@@ -38,6 +39,38 @@ class CategoriasActivity : AppCompatActivity() {
         val colorFondo: String,
         val colorIcono: String,
         val colorBarra: String
+    )
+
+    // Mapeo de categorías con sus iconos y colores
+    private val categoriaConfig = mapOf(
+        "Comida afuera" to Triple(R.drawable.ic_utensils, "#FFE5E5", "#EF4444"),
+        "Transporte" to Triple(R.drawable.ic_car, "#E0F2FE", "#3B82F6"),
+        "Café" to Triple(R.drawable.ic_coffee, "#F5E6D3", "#8B4513"),
+        "Mercado" to Triple(R.drawable.ic_shopping_bag, "#D1FAE5", "#10B981"),
+        "Hogar" to Triple(R.drawable.ic_home, "#FFEDD5", "#F59E0B"),
+        "Entretenimiento" to Triple(R.drawable.ic_heart, "#FCE7F3", "#EC4899"),
+        "Servicios" to Triple(R.drawable.ic_zap, "#EDE9FE", "#6366F1"),
+        "Celular" to Triple(R.drawable.ic_smartphone, "#CCFBF1", "#14B8A6"),
+        "Salud" to Triple(R.drawable.ic_heart, "#FCE7F3", "#F472B6"),
+        "Educación" to Triple(R.drawable.ic_book, "#EDE9FE", "#8B5CF6"),
+        "Ropa" to Triple(R.drawable.ic_shopping_bag, "#FCE7F3", "#EC4899"),
+        "Otros" to Triple(R.drawable.ic_more_horizontal, "#F3F4F6", "#6B7280")
+    )
+
+    // Presupuestos por defecto (en pesos colombianos)
+    private val presupuestosPorDefecto = mapOf(
+        "Comida afuera" to 800000.0,
+        "Transporte" to 600000.0,
+        "Café" to 200000.0,
+        "Mercado" to 1000000.0,
+        "Hogar" to 500000.0,
+        "Entretenimiento" to 400000.0,
+        "Servicios" to 700000.0,
+        "Celular" to 100000.0,
+        "Salud" to 500000.0,
+        "Educación" to 600000.0,
+        "Ropa" to 300000.0,
+        "Otros" to 500000.0
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,33 +85,143 @@ class CategoriasActivity : AppCompatActivity() {
         cargarCategorias()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Recargar categorías cuando se regresa a esta pantalla
+        cargarCategorias()
+    }
+
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
         }
 
         binding.btnConfigurarPresupuesto.setOnClickListener {
-            // TODO: Navegar a configurar presupuesto por categorías
-            showToast("Configurar presupuesto por categorías (próximamente)")
+            val intent = Intent(this, ConfigurarPresupuestoActivity::class.java)
+            startActivity(intent)
         }
     }
 
     private fun cargarCategorias() {
-        // Mostrar categorías hardcodeadas directamente
-        mostrarCategorias(obtenerCategorias())
+        val userId = auth.currentUser?.uid ?: return
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        // Cargar presupuestos guardados desde Firestore
+        db.collection("users").document(userId)
+            .collection("presupuestos")
+            .document("categorias")
+            .get()
+            .addOnSuccessListener { documentPresupuestos ->
+                lifecycleScope.launch {
+                    procesarCategorias(userId, repository, documentPresupuestos)
+                }
+            }
+            .addOnFailureListener {
+                lifecycleScope.launch {
+                    procesarCategorias(userId, repository, null)
+                }
+            }
+    }
+
+    private suspend fun procesarCategorias(
+        userId: String,
+        repository: com.example.finance.dataBase.repository.FinanceRepository,
+        documentPresupuestos: com.google.firebase.firestore.DocumentSnapshot?
+    ) {
+        try {
+            // Obtener todos los gastos del mes actual
+            val calendario = Calendar.getInstance()
+            val mesActual = calendario.get(Calendar.MONTH)
+            val anioActual = calendario.get(Calendar.YEAR)
+
+            val todosLosGastos = repository.getAllGastosList(userId)
+
+            // Filtrar gastos del mes actual
+            val gastosDelMes = todosLosGastos.filter { gasto ->
+                val fechaGasto = Calendar.getInstance().apply {
+                    timeInMillis = gasto.fecha
+                }
+                fechaGasto.get(Calendar.MONTH) == mesActual &&
+                fechaGasto.get(Calendar.YEAR) == anioActual
+            }
+
+            // Agrupar gastos por categoría
+            val gastosPorCategoria = gastosDelMes.groupBy { it.categoria }
+                .mapValues { entry -> entry.value.sumOf { it.monto } }
+
+            // Crear lista de categorías con datos reales
+            val categorias = mutableListOf<Categoria>()
+
+            // Agregar categorías que tienen gastos
+            gastosPorCategoria.forEach { (nombreCategoria, gastado) ->
+                val config = categoriaConfig[nombreCategoria] ?: categoriaConfig["Otros"]!!
+                
+                // Usar presupuesto guardado o por defecto
+                val presupuesto = if (documentPresupuestos != null && documentPresupuestos.exists()) {
+                    documentPresupuestos.getDouble(nombreCategoria) ?: presupuestosPorDefecto[nombreCategoria] ?: 500000.0
+                } else {
+                    presupuestosPorDefecto[nombreCategoria] ?: 500000.0
+                }
+
+                categorias.add(
+                    Categoria(
+                        nombre = nombreCategoria,
+                        icono = config.first,
+                        gastado = gastado,
+                        presupuesto = presupuesto,
+                        colorFondo = config.second,
+                        colorIcono = config.third,
+                        colorBarra = config.third
+                    )
+                )
+            }
+
+            // Agregar categorías principales que no tienen gastos (para mostrarlas vacías)
+            val categoriasDefinidas = listOf(
+                "Comida afuera", "Transporte", "Café", "Mercado", 
+                "Hogar", "Entretenimiento", "Servicios", "Celular"
+            )
+
+            categoriasDefinidas.forEach { nombreCategoria ->
+                if (!gastosPorCategoria.containsKey(nombreCategoria)) {
+                    val config = categoriaConfig[nombreCategoria]!!
+                    
+                    // Usar presupuesto guardado o por defecto
+                    val presupuesto = if (documentPresupuestos != null && documentPresupuestos.exists()) {
+                        documentPresupuestos.getDouble(nombreCategoria) ?: presupuestosPorDefecto[nombreCategoria]!!
+                    } else {
+                        presupuestosPorDefecto[nombreCategoria]!!
+                    }
+
+                    categorias.add(
+                        Categoria(
+                            nombre = nombreCategoria,
+                            icono = config.first,
+                            gastado = 0.0,
+                            presupuesto = presupuesto,
+                            colorFondo = config.second,
+                            colorIcono = config.third,
+                            colorBarra = config.third
+                        )
+                    )
+                }
+            }
+
+            // Ordenar por mayor gastado primero
+            val categoriasOrdenadas = categorias.sortedByDescending { it.gastado }
+
+            // Mostrar categorías
+            mostrarCategorias(categoriasOrdenadas)
+
+        } catch (e: Exception) {
+            showToast("Error al cargar categorías: ${e.message}")
+        }
     }
 
     private fun obtenerCategorias(): List<Categoria> {
-        return listOf(
-            Categoria("1", "Comida afuera", R.drawable.ic_utensils, 720000.0, 800000.0, "#FFE5E5", "#EF4444", "#EF4444"),
-            Categoria("2", "Transporte", R.drawable.ic_car, 500000.0, 600000.0, "#E0F2FE", "#3B82F6", "#3B82F6"),
-            Categoria("3", "Café", R.drawable.ic_coffee, 180000.0, 200000.0, "#F5E6D3", "#8B4513", "#8B4513"),
-            Categoria("4", "Mercado", R.drawable.ic_shopping_bag, 700000.0, 1000000.0, "#D1FAE5", "#10B981", "#10B981"),
-            Categoria("5", "Hogar", R.drawable.ic_home, 400000.0, 500000.0, "#FFEDD5", "#F59E0B", "#F59E0B"),
-            Categoria("6", "Entretenimiento", R.drawable.ic_heart, 320000.0, 400000.0, "#FCE7F3", "#EC4899", "#EC4899"),
-            Categoria("7", "Servicios", R.drawable.ic_zap, 650000.0, 700000.0, "#EDE9FE", "#6366F1", "#6366F1"),
-            Categoria("8", "Celular", R.drawable.ic_smartphone, 95000.0, 100000.0, "#CCFBF1", "#14B8A6", "#14B8A6")
-        )
+        // Esta función ya no se usa, se reemplazó por cargarCategorias()
+        return emptyList()
     }
 
     private fun mostrarCategorias(categorias: List<Categoria>) {
