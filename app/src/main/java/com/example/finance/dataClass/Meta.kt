@@ -11,7 +11,8 @@ data class Meta(
 ) {
     fun getPorcentaje(): Float {
         if (objetivo == 0.0) return 0f
-        return ((ahorrado / objetivo) * 100).toFloat()
+        val porcentaje = ((ahorrado / objetivo) * 100).toFloat()
+        return if (porcentaje > 100f) 100f else porcentaje
     }
     
     fun getFaltante(): Double {
