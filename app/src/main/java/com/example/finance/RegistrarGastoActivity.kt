@@ -1,274 +1,232 @@
 package com.example.finance
 
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.GridLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.finance.databinding.ActivityRegistrarGastoBinding
 import com.example.finance.dataBase.entities.GastoEntity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
-import java.util.*
-
+import java.util.Locale
 
 class RegistrarGastoActivity : AppCompatActivity() {
 
-    // Views
-    private lateinit var tvMonto: TextView
-    private lateinit var gridCategorias: GridLayout
-    private lateinit var gridTeclado: GridLayout
-    private lateinit var etNota: EditText
-    private lateinit var btnGuardar: Button
-    private lateinit var btnBack: ImageButton
+    private lateinit var binding: ActivityRegistrarGastoBinding
+    private lateinit var auth: FirebaseAuth
 
-    // Variables
+    // Estado
     private var montoActual = "0"
     private var categoriaSeleccionada = ""
 
+    // Formato de moneda
+    @Suppress("DEPRECATION")
+    private val numberFormat = NumberFormat.getNumberInstance(Locale("es", "CO"))
+
     // Categorías disponibles con sus emojis
     private val categorias = listOf(
-        Pair("Comida afuera", "🍽️"),
-        Pair("Transporte", "🚗"),
-        Pair("Mercado", "🛒"),
-        Pair("Entretenimiento", "🎬"),
-        Pair("Salud", "❤️"),
-        Pair("Servicios", "⚡"),
-        Pair("Ropa", "👕"),
-        Pair("Café", "☕"),
-        Pair("Transferencias", "↔️"),
-        Pair("Otros", "⋯")
+        "Comida afuera" to "🍽️",
+        "Transporte" to "🚗",
+        "Mercado" to "🛒",
+        "Entretenimiento" to "🎬",
+        "Salud" to "❤️",
+        "Servicios" to "⚡",
+        "Ropa" to "👕",
+        "Café" to "☕",
+        "Transferencias" to "↔️",
+        "Otros" to "⋯"
     )
+
+    // Teclas del teclado numérico
+    private val teclas = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "←")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_registrar_gasto)
+        binding = ActivityRegistrarGastoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        initViews()
+        auth = FirebaseAuth.getInstance()
+
         setupCategorias()
         setupTeclado()
-        setupListeners()
+        setupClickListeners()
         updateUI()
     }
 
-    /**
-     * Inicializa las referencias a las vistas.
-     */
-    private fun initViews() {
-        tvMonto = findViewById(R.id.tvMonto)
-        gridCategorias = findViewById(R.id.gridCategorias)
-        gridTeclado = findViewById(R.id.gridTeclado)
-        etNota = findViewById(R.id.etNota)
-        btnGuardar = findViewById(R.id.btnGuardar)
-        btnBack = findViewById(R.id.btnBack)
-    }
+    private fun setupClickListeners() {
+        binding.btnBack.setOnClickListener { finish() }
+        binding.btnGuardar.setOnClickListener { guardarGasto() }
 
-    /**
-     * Configura los listeners de los botones.
-     */
-    private fun setupListeners() {
-        btnBack.setOnClickListener { finish() }
-        
-        btnGuardar.setOnClickListener {
-            guardarGasto()
-        }
-
-        etNota.addTextChangedListener(object : TextWatcher {
+        binding.etNota.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                updateUI()
-            }
+            override fun afterTextChanged(s: Editable?) { updateUI() }
         })
     }
 
-    /**
-     * Crea dinámicamente el grid de categorías.
-     */
     private fun setupCategorias() {
         categorias.forEach { (nombre, emoji) ->
-            val button = Button(this).apply {
-                text = "$emoji\n$nombre"
-                textSize = 14f
-                gravity = Gravity.CENTER
-                setPadding(8, 16, 8, 16)
-                setBackgroundResource(R.drawable.bg_categoria_default)
-                setTextColor(Color.parseColor("#212842"))
-                
-                // Parámetros del layout
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                    setMargins(8, 8, 8, 8)
-                }
-                layoutParams = params
-
-                // Click listener
-                setOnClickListener {
-                    seleccionarCategoria(nombre)
-                }
-            }
-            gridCategorias.addView(button)
+            val button = createCategoriaButton(nombre, emoji)
+            binding.gridCategorias.addView(button)
         }
     }
 
-    /**
-     * Selecciona una categoría y actualiza la UI.
-     */
+    private fun createCategoriaButton(nombre: String, emoji: String): Button {
+        return Button(this).apply {
+            text = "$emoji\n$nombre"
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(8, 16, 8, 16)
+            setBackgroundResource(R.drawable.bg_categoria_default)
+            setTextColor(ContextCompat.getColor(context, R.color.primary_dark))
+
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 0
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                setMargins(8, 8, 8, 8)
+            }
+
+            setOnClickListener { seleccionarCategoria(nombre) }
+        }
+    }
+
     private fun seleccionarCategoria(categoria: String) {
         categoriaSeleccionada = categoria
         
-        // Actualizar todos los botones de categoría
-        for (i in 0 until gridCategorias.childCount) {
-            val button = gridCategorias.getChildAt(i) as Button
-            val categoriaActual = categorias.getOrNull(i)?.first ?: ""
-            
-            if (categoriaActual == categoria) {
-                button.setBackgroundResource(R.drawable.bg_categoria_selected)
-                button.setTextColor(Color.WHITE)
-            } else {
-                button.setBackgroundResource(R.drawable.bg_categoria_default)
-                button.setTextColor(Color.parseColor("#212842"))
-            }
+        // Actualizar estado visual de todos los botones
+        for (i in 0 until binding.gridCategorias.childCount) {
+            val button = binding.gridCategorias.getChildAt(i) as Button
+            val isSelected = categorias.getOrNull(i)?.first == categoria
+
+            button.setBackgroundResource(
+                if (isSelected) R.drawable.bg_categoria_selected
+                else R.drawable.bg_categoria_default
+            )
+            button.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    if (isSelected) android.R.color.white else R.color.primary_dark
+                )
+            )
         }
         
         updateUI()
     }
 
-    /**
-     * Crea dinámicamente el teclado numérico.
-     */
     private fun setupTeclado() {
-        val teclas = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "←")
-        
         teclas.forEach { tecla ->
-            val button = Button(this).apply {
-                text = tecla
-                textSize = 24f
-                setBackgroundResource(R.drawable.bg_input_field)
-                setTextColor(Color.parseColor("#212842"))
-                
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = 140
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                    setMargins(8, 8, 8, 8)
-                }
-                layoutParams = params
+            val button = createTeclaButton(tecla)
+            binding.gridTeclado.addView(button)
+        }
+    }
 
-                setOnClickListener {
-                    when (tecla) {
-                        "←" -> handleDelete()
-                        else -> handleNumberClick(tecla)
-                    }
+    private fun createTeclaButton(tecla: String): Button {
+        return Button(this).apply {
+            text = tecla
+            textSize = 24f
+            setBackgroundResource(R.drawable.bg_input_field)
+            setTextColor(ContextCompat.getColor(context, R.color.primary_dark))
+
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 0
+                height = 140
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                setMargins(8, 8, 8, 8)
+            }
+
+            setOnClickListener {
+                when (tecla) {
+                    "←" -> handleDelete()
+                    else -> handleNumberClick(tecla)
                 }
             }
-            gridTeclado.addView(button)
         }
     }
 
-    /**
-     * Maneja el click en un número o punto decimal.
-     */
     private fun handleNumberClick(num: String) {
-        montoActual = if (montoActual == "0") {
-            num
-        } else {
-            montoActual + num
-        }
+        montoActual = if (montoActual == "0") num else montoActual + num
         updateUI()
     }
 
-    /**
-     * Maneja el botón de borrar.
-     */
     private fun handleDelete() {
-        montoActual = if (montoActual.length > 1) {
-            montoActual.dropLast(1)
-        } else {
-            "0"
-        }
+        montoActual = if (montoActual.length > 1) montoActual.dropLast(1) else "0"
         updateUI()
     }
 
-    /**
-     * Actualiza la UI según el estado actual.
-     */
     private fun updateUI() {
-        // Formatear el monto con separadores de miles
-        val montoFormateado = try {
-            val numero = montoActual.toDoubleOrNull() ?: 0.0
-            NumberFormat.getNumberInstance(Locale("es", "CO")).format(numero)
-        } catch (e: Exception) {
-            montoActual
-        }
-        
-        tvMonto.text = "$ $montoFormateado"
-        
+        // Formatear el monto
+        val montoFormateado = formatearMonto(montoActual)
+        binding.tvMonto.text = "$ $montoFormateado"
+
         // Habilitar botón guardar si hay categoría y monto válido
         val montoValido = (montoActual.toDoubleOrNull() ?: 0.0) > 0
-        btnGuardar.isEnabled = categoriaSeleccionada.isNotEmpty() && montoValido
-        btnGuardar.alpha = if (btnGuardar.isEnabled) 1.0f else 0.5f
+        val isFormValid = categoriaSeleccionada.isNotEmpty() && montoValido
+
+        binding.btnGuardar.apply {
+            isEnabled = isFormValid
+            alpha = if (isFormValid) 1.0f else 0.5f
+        }
     }
 
-    /**
-     * Guarda el gasto en Room Database.
-     */
+    private fun formatearMonto(monto: String): String {
+        return try {
+            val numero = monto.toDoubleOrNull() ?: 0.0
+            numberFormat.format(numero)
+        } catch (_: Exception) {
+            monto
+        }
+    }
+
     private fun guardarGasto() {
-        // Obtener el userId de Firebase Auth
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        
+        val userId = auth.currentUser?.uid
+
         if (userId == null) {
-            Toast.makeText(this, "Error: Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            showToast("Error: Usuario no autenticado")
             return
         }
 
         val monto = montoActual.toDoubleOrNull() ?: 0.0
         if (monto <= 0) {
-            Toast.makeText(this, "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show()
+            showToast("Por favor ingresa un monto válido")
             return
         }
 
         if (categoriaSeleccionada.isEmpty()) {
-            Toast.makeText(this, "Por favor selecciona una categoría", Toast.LENGTH_SHORT).show()
+            showToast("Por favor selecciona una categoría")
             return
         }
 
-        // Crear el objeto GastoEntity
         val gasto = GastoEntity(
             categoria = categoriaSeleccionada,
-            descripcion = etNota.text.toString().ifEmpty { categoriaSeleccionada },
+            descripcion = binding.etNota.text.toString().ifEmpty { categoriaSeleccionada },
             monto = monto,
             fecha = System.currentTimeMillis(),
             userId = userId
         )
 
-        // Guardar en Room Database usando coroutines
         lifecycleScope.launch {
             try {
                 val app = application as FinanceApplication
-                val gastoId = app.repository.insertGasto(gasto)
-                
-                Toast.makeText(
-                    this@RegistrarGastoActivity,
-                    "Gasto guardado correctamente (ID: $gastoId)",
-                    Toast.LENGTH_SHORT
-                ).show()
-                
-                // Cerrar la activity
+                app.repository.insertGasto(gasto)
+
+                showToast("Gasto guardado correctamente")
                 finish()
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@RegistrarGastoActivity,
-                    "Error al guardar: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                showToast("Error al guardar: ${e.message}")
             }
         }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
