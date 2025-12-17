@@ -17,16 +17,6 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * Activity para configurar el presupuesto inicial del usuario.
- * 
- * Cumple con las siguientes funcionalidades (FIN-36 a FIN-40):
- * - FIN-36: UI diseñada con campos de entrada formateados
- * - FIN-37: Campos para ingreso de presupuesto mensual con formato de moneda
- * - FIN-38: Cálculo automático de presupuesto diario basado en días del mes
- * - FIN-39: Guardado en Room Database con validaciones
- * - FIN-40: Opción "Configurar después" para omitir este paso
- */
 class ConfigurarPresupuestoInicialActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityConfigurarPresupuestoInicialBinding

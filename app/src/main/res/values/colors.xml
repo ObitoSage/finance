@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- Colores principales de Plata Clara -->
+    <!-- Colores principales de Finance -->
     <color name="primary_dark">#212842</color>
     <color name="primary_light">#F0E7D5</color>
     <color name="accent_teal">#14B8A6</color>

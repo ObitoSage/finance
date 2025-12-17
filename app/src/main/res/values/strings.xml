@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Plata Clara</string>
+    <string name="app_name">Finance</string>
     
     <!-- SignUp Activity -->
     <string name="sign_up_title">Crear cuenta</string>
@@ -55,7 +55,7 @@
     <string name="info_tip_title">Consejo útil</string>
     <string name="info_tip_desc">Puedes modificar este presupuesto en cualquier momento desde la configuración de la app</string>
     <string name="budget_examples">Ejemplos de presupuesto mensual:</string>
-    <string name="start_using_app">Comenzar a usar Plata Clara</string>
+    <string name="start_using_app">Comenzar a usar Finance</string>
     <string name="setup_later">Configurar después</string>
     <string name="budget_error">Por favor ingresa un presupuesto mensual válido</string>
     
@@ -129,7 +129,7 @@
     <string name="profile_title">Mi perfil</string>
     <string name="profile_member_since">Miembro desde %1$s</string>
     <string name="profile_member_since_value">Miembro desde %1$s</string>
-    <string name="profile_edit_button">Editar perfil</string>
+    <string name="profile_edit_button">Cambiar contraseña</string>
     <string name="profile_personal_info">Información personal</string>
     <string name="profile_full_name">Nombre completo</string>
     <string name="profile_email">Correo electrónico</string>
@@ -141,5 +141,5 @@
     <string name="profile_active_goals">Metas activas</string>
     <string name="profile_session">Sesión</string>
     <string name="profile_logout">Cerrar sesión</string>
-    <string name="profile_version">Plata Clara v1.0.0</string>
+    <string name="profile_version">Finance v1.0.0</string>
 </resources>

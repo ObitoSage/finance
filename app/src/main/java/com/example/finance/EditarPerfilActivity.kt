@@ -50,6 +50,17 @@ class EditarPerfilActivity : AppCompatActivity() {
             return
         }
 
+        // Ocultar campos de nombre y email - solo editar contraseña
+        binding.tilNombre.visibility = View.GONE
+        binding.tvNombreLabel.visibility = View.GONE
+        binding.layoutEmail.visibility = View.GONE
+        binding.tvEmailLabel.visibility = View.GONE
+        binding.separatorPersonalInfo.visibility = View.GONE
+        
+        // Actualizar título
+        binding.tvTitle.text = "Cambiar contraseña"
+        binding.tvSubtitle.text = "Actualiza tu contraseña de acceso"
+        
         cargarDatosUsuario()
         setupClickListeners()
         setupTextWatchers()
@@ -265,20 +276,15 @@ class EditarPerfilActivity : AppCompatActivity() {
     }
 
     private fun verificarCambios() {
-        val nombre = binding.etNombre.text.toString().trim()
         val nuevaPassword = binding.etNuevaPassword.text.toString()
         val confirmarPassword = binding.etConfirmarPassword.text.toString()
 
-        hayCambios = nombre != nombreOriginal ||
-                nuevaPassword.isNotEmpty() ||
-                confirmarPassword.isNotEmpty()
+        hayCambios = nuevaPassword.isNotEmpty() || confirmarPassword.isNotEmpty()
     }
 
     private fun actualizarEstadoBotonGuardar() {
-        // El botón se habilita si:
-        // 1. Hay cambios
-        // 2. Todos los campos actuales son válidos (sin importar si cambiaron o no)
-        val todosLosCamposValidos = nombreValido && emailValido && passwordValida && passwordsCoinciden
+        // El botón se habilita si hay cambios y la contraseña es válida
+        val todosLosCamposValidos = passwordValida && passwordsCoinciden
         
         binding.btnGuardar.isEnabled = hayCambios && todosLosCamposValidos
 
@@ -306,19 +312,17 @@ class EditarPerfilActivity : AppCompatActivity() {
     }
 
     private fun handleGuardar() {
-        // Validar todos los campos
-        validarNombre()
+        // Validar contraseña
         validarPassword()
         validarConfirmarPassword()
 
-        val formularioValido = nombreValido && passwordValida && passwordsCoinciden
+        val formularioValido = passwordValida && passwordsCoinciden
 
         if (!formularioValido) {
             showToast("Por favor corrige los errores en el formulario")
             return
         }
 
-        val nombre = binding.etNombre.text.toString().trim()
         val nuevaPassword = binding.etNuevaPassword.text.toString()
         val currentUser = auth.currentUser
 
@@ -327,83 +331,44 @@ class EditarPerfilActivity : AppCompatActivity() {
             return
         }
 
+        if (nuevaPassword.isEmpty()) {
+            showToast("Debes ingresar una nueva contraseña")
+            return
+        }
+
         // Deshabilitar botón
         binding.btnGuardar.isEnabled = false
 
-        // Verificar si necesitamos reautenticación (solo para contraseña)
-        if (nuevaPassword.isNotEmpty()) {
-            // Solicitar contraseña actual para reautenticación
-            mostrarDialogoPasswordActual { passwordActual ->
-                if (passwordActual != null) {
-                    reautenticarYGuardar(nombre, nuevaPassword, passwordActual)
-                } else {
-                    binding.btnGuardar.isEnabled = true
-                }
-            }
-        } else {
-            // Solo cambio de nombre, no necesita reautenticación
-            actualizarNombre(nombre) { exito ->
-                if (exito) {
-                    mostrarExitoYRegresar()
-                } else {
-                    binding.btnGuardar.isEnabled = true
-                }
+        // Solicitar contraseña actual para reautenticación
+        mostrarDialogoPasswordActual { passwordActual ->
+            if (passwordActual != null) {
+                reautenticarYCambiarPassword(nuevaPassword, passwordActual)
+            } else {
+                binding.btnGuardar.isEnabled = true
             }
         }
     }
 
-    private fun reautenticarYGuardar(nombre: String, nuevaPassword: String, passwordActual: String) {
+    private fun reautenticarYCambiarPassword(nuevaPassword: String, passwordActual: String) {
         val currentUser = auth.currentUser ?: return
-        val credential = EmailAuthProvider.getCredential(emailOriginal, passwordActual)
+        val email = currentUser.email ?: ""
+        val credential = EmailAuthProvider.getCredential(email, passwordActual)
 
         currentUser.reauthenticate(credential)
             .addOnSuccessListener {
-                // Reautenticación exitosa, proceder con las actualizaciones
-                realizarActualizaciones(nombre, nuevaPassword)
+                // Reautenticación exitosa, cambiar contraseña
+                actualizarPassword(nuevaPassword) { exito ->
+                    if (exito) {
+                        mostrarExitoYRegresar()
+                    } else {
+                        binding.btnGuardar.isEnabled = true
+                    }
+                }
             }
             .addOnFailureListener { exception ->
                 binding.btnGuardar.isEnabled = true
                 showToast("Contraseña actual incorrecta")
             }
-    }
-
-    private fun realizarActualizaciones(nombre: String, nuevaPassword: String) {
-        var operacionesFallidas = 0
-        var operacionesCompletadas = 0
-        var totalOperaciones = 0
-
-        // Contar operaciones a realizar
-        if (nombre != nombreOriginal) totalOperaciones++
-        if (nuevaPassword.isNotEmpty()) totalOperaciones++
-
-        // Función para verificar si todas las operaciones terminaron
-        fun verificarCompletado() {
-            operacionesCompletadas++
-            if (operacionesCompletadas >= totalOperaciones) {
-                if (operacionesFallidas > 0) {
-                    showToast("Algunos cambios no se pudieron guardar")
-                    binding.btnGuardar.isEnabled = true
-                } else {
-                    mostrarExitoYRegresar()
-                }
-            }
-        }
-
-        // Actualizar nombre primero
-        if (nombre != nombreOriginal) {
-            actualizarNombre(nombre) { exito ->
-                if (!exito) operacionesFallidas++
-                verificarCompletado()
-            }
-        }
-
-        // Actualizar contraseña
-        if (nuevaPassword.isNotEmpty()) {
-            actualizarPassword(nuevaPassword) { exito ->
-                if (!exito) operacionesFallidas++
-                verificarCompletado()
-            }
-        }
     }
 
     private fun mostrarDialogoPasswordActual(callback: (String?) -> Unit) {
@@ -502,11 +467,8 @@ class EditarPerfilActivity : AppCompatActivity() {
         binding.scrollView.smoothScrollTo(0, 0)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            // Navegar a DashboardActivity con mensaje de éxito
-            val intent = Intent(this, DashboardActivity::class.java)
-            intent.putExtra("PROFILE_UPDATED", true)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            startActivity(intent)
+            // Regresar a UsuarioActivity con resultado exitoso
+            setResult(Activity.RESULT_OK)
             finish()
         }, 1500)
     }

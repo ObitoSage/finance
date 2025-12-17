@@ -28,7 +28,7 @@ class UsuarioActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             // Los cambios fueron guardados exitosamente, recargar datos
             loadUserData()
-            showToast("Perfil actualizado correctamente")
+            showToast("Contraseña actualizada correctamente")
         }
     }
 
