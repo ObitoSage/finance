@@ -58,6 +58,9 @@ class MetasActivity : AppCompatActivity() {
         metaAdapter = MetaAdapter(
             onAgregarClick = { meta ->
                 agregarDineroAMeta(meta)
+            },
+            onEliminarClick = { meta ->
+                confirmarEliminarMeta(meta)
             }
         )
         
@@ -189,6 +192,34 @@ class MetasActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun confirmarEliminarMeta(meta: Meta) {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Eliminar meta")
+        builder.setMessage("¿Estás seguro de que quieres eliminar la meta '${meta.nombre}'?")
+        builder.setPositiveButton("Eliminar") { _, _ ->
+            eliminarMeta(meta)
+        }
+        builder.setNegativeButton("Cancelar") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+
+    private fun eliminarMeta(meta: Meta) {
+        val app = application as FinanceApplication
+        val repository = app.repository
+
+        lifecycleScope.launch {
+            try {
+                val metaId = meta.id.toLongOrNull() ?: return@launch
+                repository.deleteMetaById(metaId)
+                showToast("Meta eliminada")
+            } catch (e: Exception) {
+                showToast("Error al eliminar meta: ${e.message}")
+            }
+        }
     }
     
     private fun formatCurrency(amount: Double): String {

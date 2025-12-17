@@ -10,65 +10,83 @@
     app:strokeColor="@color/gray_100"
     app:cardBackgroundColor="@color/white">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Header con ícono y nombre -->
+        <!-- Botón eliminar en la esquina superior derecha -->
+        <ImageView
+            android:id="@+id/btnEliminar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_close"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:contentDescription="Eliminar meta"
+            app:tint="@color/gray_400" />
+
+        <!-- Contenido principal -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp"
-            android:gravity="center_vertical">
+            android:orientation="vertical">
 
-            <!-- Ícono de la meta -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvIconContainer"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp">
-
-                <ImageView
-                    android:id="@+id/ivIcono"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_target"
-                    android:contentDescription="Ícono de meta" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Nombre y progreso -->
+            <!-- Header con ícono y nombre -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="16dp"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp"
+                android:layout_marginEnd="40dp"
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/tvNombre"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fondo de emergencia"
-                    android:textSize="17sp"
-                    android:textColor="@color/gray_900"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                <!-- Ícono de la meta -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cvIconContainer"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
 
-                <TextView
-                    android:id="@+id/tvProgreso"
-                    android:layout_width="wrap_content"
+                    <ImageView
+                        android:id="@+id/ivIcono"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_target"
+                        android:contentDescription="Ícono de meta" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Nombre y progreso -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="$1,200,000 de $5,000,000"
-                    android:textSize="14sp"
-                    android:textColor="@color/gray_500" />
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvNombre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fondo de emergencia"
+                        android:textSize="17sp"
+                        android:textColor="@color/gray_900"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvProgreso"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$1,200,000 de $5,000,000"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_500" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
 
         <!-- Barra de progreso -->
         <FrameLayout
@@ -125,6 +143,22 @@
                 app:cornerRadius="12dp" />
         </LinearLayout>
 
-    </LinearLayout>
+        <!-- Mensaje de meta completada -->
+        <TextView
+            android:id="@+id/tvMetaCompletada"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="¡Meta completada!"
+            android:textSize="16sp"
+            android:textColor="@color/success_green"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -50,4 +50,10 @@
     <color name="category_entertainment">#EC4899</color>
     <color name="category_services">#6366F1</color>
     <color name="category_phone">#14B8A6</color>
+    
+    <!-- Colores adicionales para reporte -->
+    <color name="beige">#F0E7D5</color>
+    <color name="error_red_light">#FEE2E2</color>
+    <color name="success_green_light">#D1FAE5</color>
+    <color name="success_green_bg">#F0FDF4</color>
 </resources>
