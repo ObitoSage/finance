@@ -19,15 +19,13 @@ import java.util.*
 class RegistrarGastoActivity : AppCompatActivity() {
 
     // Views
-    private lateinit var tvMonto: TextView
+    private lateinit var etMonto: EditText
     private lateinit var gridCategorias: GridLayout
-    private lateinit var gridTeclado: GridLayout
     private lateinit var etNota: EditText
     private lateinit var btnGuardar: Button
     private lateinit var btnBack: ImageButton
 
     // Variables
-    private var montoActual = "0"
     private var categoriaSeleccionada = ""
 
     // Categorías disponibles con sus emojis
@@ -50,18 +48,15 @@ class RegistrarGastoActivity : AppCompatActivity() {
 
         initViews()
         setupCategorias()
-        setupTeclado()
         setupListeners()
-        updateUI()
     }
 
     /**
      * Inicializa las referencias a las vistas.
      */
     private fun initViews() {
-        tvMonto = findViewById(R.id.tvMonto)
+        etMonto = findViewById(R.id.etMonto)
         gridCategorias = findViewById(R.id.gridCategorias)
-        gridTeclado = findViewById(R.id.gridTeclado)
         etNota = findViewById(R.id.etNota)
         btnGuardar = findViewById(R.id.btnGuardar)
         btnBack = findViewById(R.id.btnBack)
@@ -76,6 +71,15 @@ class RegistrarGastoActivity : AppCompatActivity() {
         btnGuardar.setOnClickListener {
             guardarGasto()
         }
+
+        // Habilitar/deshabilitar botón guardar según los campos
+        etMonto.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                updateUI()
+            }
+        })
 
         etNota.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -141,77 +145,11 @@ class RegistrarGastoActivity : AppCompatActivity() {
     }
 
     /**
-     * Crea dinámicamente el teclado numérico.
-     */
-    private fun setupTeclado() {
-        val teclas = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "←")
-        
-        teclas.forEach { tecla ->
-            val button = Button(this).apply {
-                text = tecla
-                textSize = 24f
-                setBackgroundResource(R.drawable.bg_input_field)
-                setTextColor(Color.parseColor("#212842"))
-                
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = 140
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                    setMargins(8, 8, 8, 8)
-                }
-                layoutParams = params
-
-                setOnClickListener {
-                    when (tecla) {
-                        "←" -> handleDelete()
-                        else -> handleNumberClick(tecla)
-                    }
-                }
-            }
-            gridTeclado.addView(button)
-        }
-    }
-
-    /**
-     * Maneja el click en un número o punto decimal.
-     */
-    private fun handleNumberClick(num: String) {
-        montoActual = if (montoActual == "0") {
-            num
-        } else {
-            montoActual + num
-        }
-        updateUI()
-    }
-
-    /**
-     * Maneja el botón de borrar.
-     */
-    private fun handleDelete() {
-        montoActual = if (montoActual.length > 1) {
-            montoActual.dropLast(1)
-        } else {
-            "0"
-        }
-        updateUI()
-    }
-
-    /**
      * Actualiza la UI según el estado actual.
      */
     private fun updateUI() {
-        // Formatear el monto con separadores de miles
-        val montoFormateado = try {
-            val numero = montoActual.toDoubleOrNull() ?: 0.0
-            NumberFormat.getNumberInstance(Locale("es", "CO")).format(numero)
-        } catch (e: Exception) {
-            montoActual
-        }
-        
-        tvMonto.text = "$ $montoFormateado"
-        
         // Habilitar botón guardar si hay categoría y monto válido
-        val montoValido = (montoActual.toDoubleOrNull() ?: 0.0) > 0
+        val montoValido = (etMonto.text.toString().toDoubleOrNull() ?: 0.0) > 0
         btnGuardar.isEnabled = categoriaSeleccionada.isNotEmpty() && montoValido
         btnGuardar.alpha = if (btnGuardar.isEnabled) 1.0f else 0.5f
     }
@@ -228,7 +166,7 @@ class RegistrarGastoActivity : AppCompatActivity() {
             return
         }
 
-        val monto = montoActual.toDoubleOrNull() ?: 0.0
+        val monto = etMonto.text.toString().toDoubleOrNull() ?: 0.0
         if (monto <= 0) {
             Toast.makeText(this, "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show()
             return
