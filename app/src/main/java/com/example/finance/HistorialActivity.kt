@@ -358,18 +358,26 @@ class HistorialActivity : AppCompatActivity() {
         
         // Configurar icono
         val iconoResId = categoryIcons[transaccion.categoria] ?: R.drawable.ic_shopping_bag
-        val color = categoryColors[transaccion.categoria] ?: "#6B7280"
+        val colorHex = categoryColors[transaccion.categoria] ?: "#6B7280"
         
         itemBinding.iconoCategoria.setImageResource(iconoResId)
         
-        // Aplicar color al fondo del icono
+        // Aplicar color al fondo del icono (15% opacity)
+        val colorBase = android.graphics.Color.parseColor(colorHex)
+        val colorFondo = android.graphics.Color.argb(
+            38, // 15% de 255
+            android.graphics.Color.red(colorBase),
+            android.graphics.Color.green(colorBase),
+            android.graphics.Color.blue(colorBase)
+        )
+        
         val drawable = GradientDrawable()
         drawable.cornerRadius = 32f
-        drawable.setColor(android.graphics.Color.parseColor("$color" + "26")) // 15% opacity
+        drawable.setColor(colorFondo)
         itemBinding.iconoFondo.background = drawable
         
         // Aplicar color al icono
-        itemBinding.iconoCategoria.setColorFilter(android.graphics.Color.parseColor(color))
+        itemBinding.iconoCategoria.setColorFilter(colorBase)
         
         // Configurar indicador de tipo
         val isIngreso = transaccion.tipo == "ingreso"
