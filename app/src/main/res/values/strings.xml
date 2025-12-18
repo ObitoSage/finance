@@ -1,3 +1,145 @@
 <resources>
-    <string name="app_name">finance</string>
+    <string name="app_name">Finance</string>
+    
+    <!-- SignUp Activity -->
+    <string name="sign_up_title">Crear cuenta</string>
+    <string name="sign_up_subtitle">Completa tus datos para comenzar</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="full_name_hint">María García</string>
+    <string name="email">Correo electrónico</string>
+    <string name="email_hint">tu@email.com</string>
+    <string name="password">Contraseña</string>
+    <string name="password_hint">••••••</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="already_have_account">¿Ya tienes cuenta?</string>
+    <string name="login_action">Inicia sesión</string>
+    <string name="accept_terms">Acepto los terminos y condiciones</string>
+    <string name="terms_and_conditions">Términos y Condiciones</string>
+    <string name="and">y la</string>
+    <string name="privacy_policy">Política de Privacidad</string>
+    <string name="name_error">El nombre debe tener al menos 3 caracteres</string>
+    <string name="email_error">Ingresa un correo válido</string>
+    <string name="password_error">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="password_match_error">Las contraseñas no coinciden</string>
+    
+    <!-- Login Activity -->
+    <string name="login_title">Bienvenido</string>
+    <string name="login_subtitle">Ingresa a tu cuenta</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="no_account">¿No tienes cuenta?</string>
+    <string name="register_action">Regístrate</string>
+    <string name="login_error">Por favor completa todos los campos</string>
+    <string name="invalid_email">Por favor ingresa un email válido</string>
+    <string name="app_tagline">Tus finanzas personales, simples y claras</string>
+    <string name="terms_footer">Al continuar aceptas nuestros términos y condiciones</string>
+    
+    <!-- Bienvenida Activity -->
+    <string name="welcome_title">¡Hola %1$s!</string>
+    <string name="welcome_subtitle">Estás a punto de tomar el control total de tus finanzas personales</string>
+    <string name="feature_analytics_title">Análisis de gastos</string>
+    <string name="feature_analytics_desc">Visualiza tus patrones de consumo con gráficos claros</string>
+    <string name="feature_categories_title">Categorización automática</string>
+    <string name="feature_categories_desc">Organiza tus gastos sin esfuerzo manual</string>
+    <string name="feature_goals_title">Metas financieras</string>
+    <string name="feature_goals_desc">Define objetivos y alcánzalos con nuestro seguimiento</string>
+    <string name="continue_button">Continuar</string>
+    
+    <!-- Configurar Presupuesto Inicial -->
+    <string name="budget_setup_title">Configura tu presupuesto</string>
+    <string name="budget_setup_subtitle">¿Cuánto dinero planeas gastar al mes? Esto nos ayudará a calcular tu presupuesto diario.</string>
+    <string name="monthly_budget">Presupuesto mensual</string>
+    <string name="daily_budget_title">Presupuesto diario estimado</string>
+    <string name="daily_budget_desc">Esto es lo que puedes gastar cada día en promedio</string>
+    <string name="info_tip_title">Consejo útil</string>
+    <string name="info_tip_desc">Puedes modificar este presupuesto en cualquier momento desde la configuración de la app</string>
+    <string name="budget_examples">Ejemplos de presupuesto mensual:</string>
+    <string name="start_using_app">Comenzar a usar Finance</string>
+    <string name="setup_later">Configurar después</string>
+    <string name="budget_error">Por favor ingresa un presupuesto mensual válido</string>
+    
+    <!-- Configurar Presupuesto por Categorías -->
+    <string name="category_budget_title">Presupuesto de %1$s</string>
+    <string name="use_last_month">Usar el mismo del mes pasado</string>
+    <string name="save_budget">Guardar presupuesto</string>
+    <string name="category_food">Comida afuera</string>
+    <string name="category_transport">Transporte</string>
+    <string name="category_coffee">Café</string>
+    <string name="category_shopping">Mercado</string>
+    <string name="category_home">Hogar</string>
+    <string name="category_entertainment">Entretenimiento</string>
+    <string name="category_services">Servicios</string>
+    <string name="category_phone">Celular</string>
+    
+    <!-- Common -->
+    <string name="or">o</string>
+    <string name="currency_symbol">$</string>
+    
+    <!-- Configurar Presupuesto Inicial Activity -->
+    <string name="configure_budget_title">Configura tu presupuesto</string>
+    <string name="configure_budget_description">¿Cuánto dinero planeas gastar al mes? Esto nos ayudará a calcular tu presupuesto diario.</string>
+    <string name="monthly_budget_label">Presupuesto mensual</string>
+    <string name="budget_hint">0</string>
+    <string name="daily_budget_label">Presupuesto diario aproximado</string>
+    <string name="daily_budget_hint">Esto es lo que puedes gastar cada día en promedio</string>
+    <string name="budget_value_placeholder">Bs 0</string>
+    <string name="budget_info_title">¿Cómo definir tu presupuesto?</string>
+    <string name="budget_info_description">Calcula tus ingresos mensuales y resta tus gastos fijos (arriendo, servicios, transporte, etc.). El resultado es tu presupuesto disponible.</string>
+    <string name="budget_examples_label">Ejemplos de presupuesto mensual:</string>
+    <string name="budget_example_500">Bs 500</string>
+    <string name="budget_example_1000">Bs 1,000</string>
+    <string name="budget_example_2000">Bs 2,000</string>
+    <string name="configure_later">Configurar después</string>
+    <string name="calendar_icon">Ícono de calendario</string>
+    <string name="dollar_icon">Ícono de dinero</string>
+    <string name="info_icon">Ícono de información</string>
+    
+    <!-- Dashboard Activity -->
+    <string name="dashboard_greeting">Hola %1$s</string>
+    <string name="dashboard_today_remaining">Hoy te quedan</string>
+    <string name="dashboard_today_spent">Hoy gastaste</string>
+    <string name="dashboard_daily_budget">Presupuesto diario</string>
+    <string name="dashboard_daily_budget_label">Presupuesto diario</string>
+    <string name="dashboard_daily_budget_value">Presupuesto diario: %1$s</string>
+    <string name="dashboard_configure_hint">Configura tu presupuesto para comenzar</string>
+    <string name="dashboard_configure_budget">Configurar presupuesto</string>
+    <string name="dashboard_month_balance">Balance del mes</string>
+    <string name="dashboard_income">Ingresos</string>
+    <string name="dashboard_expenses">Gastos</string>
+    <string name="dashboard_total_balance">Balance total</string>
+    <string name="dashboard_today_budget">Presupuesto de hoy</string>
+    <string name="dashboard_percent_used">%1$d%% usado</string>
+    <string name="dashboard_last_expenses">Últimos gastos</string>
+    <string name="dashboard_no_expenses">Sin gastos aún</string>
+    <string name="dashboard_register_first">Registra tu primer gasto</string>
+    <string name="dashboard_last_7_days">Últimos 7 días</string>
+    <string name="dashboard_no_data">Sin datos aún</string>
+    <string name="dashboard_quick_access">Accesos rápidos</string>
+    <string name="dashboard_categories">Categorías</string>
+    <string name="dashboard_goals">Metas</string>
+    <string name="dashboard_history">Historial</string>
+    <string name="dashboard_report">Reporte</string>
+    <string name="dashboard_profile">Usuario</string>
+    <string name="dashboard_expense">Gasto</string>
+    <string name="dashboard_income_btn">Ingreso</string>
+    <string name="edit_budget">Editar presupuesto</string>
+    
+    <!-- Usuario Activity -->
+    <string name="profile_title">Mi perfil</string>
+    <string name="profile_member_since">Miembro desde %1$s</string>
+    <string name="profile_member_since_value">Miembro desde %1$s</string>
+    <string name="profile_edit_button">Cambiar contraseña</string>
+    <string name="profile_personal_info">Información personal</string>
+    <string name="profile_full_name">Nombre completo</string>
+    <string name="profile_email">Correo electrónico</string>
+    <string name="profile_member_date">Miembro desde</string>
+    <string name="profile_statistics">Tus estadísticas</string>
+    <string name="profile_total_spent">Total gastado</string>
+    <string name="profile_total_saved">Total ahorrado</string>
+    <string name="profile_goals_completed">Metas completadas</string>
+    <string name="profile_active_goals">Metas activas</string>
+    <string name="profile_session">Sesión</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_version">Finance v1.0.0</string>
 </resources>

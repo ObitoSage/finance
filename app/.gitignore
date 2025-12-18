@@ -1,3 +1,4 @@
+# Build files
 /build
 
 # Created by https://www.toptal.com/developers/gitignore/api/android,androidstudio
@@ -167,3 +168,14 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio
+
+# Google Services (Firebase) - IMPORTANTE: NO SUBIR
+google-services.json
+
+# Signing configuration
+release/
+*.jks
+*.keystore
+
+# Local configuration
+local.properties
