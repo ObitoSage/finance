@@ -167,13 +167,17 @@
                 android:id="@+id/btnAgregar"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="48dp"
+                android:layout_height="56dp"
                 android:text="Agregar"
                 android:textSize="16sp"
                 android:textColor="@color/white"
                 android:fontFamily="sans-serif-medium"
                 android:textAllCaps="false"
+                android:gravity="center"
+                android:singleLine="true"
                 android:layout_marginStart="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 app:backgroundTint="@color/primary_dark"
                 app:cornerRadius="12dp" />
         </LinearLayout>

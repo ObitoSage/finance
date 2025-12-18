@@ -20,6 +20,14 @@ import java.util.Locale
 
 class RegistrarGastoActivity : AppCompatActivity() {
 
+    // Views
+    private lateinit var etMonto: EditText
+    private lateinit var gridCategorias: GridLayout
+    private lateinit var etNota: EditText
+    private lateinit var btnGuardar: Button
+    private lateinit var btnBack: ImageButton
+
+    // Variables
     private lateinit var binding: ActivityRegistrarGastoBinding
     private lateinit var auth: FirebaseAuth
 
@@ -56,16 +64,41 @@ class RegistrarGastoActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         setupCategorias()
-        setupTeclado()
-        setupClickListeners()
-        updateUI()
+
+        setupListeners()
     }
 
-    private fun setupClickListeners() {
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnGuardar.setOnClickListener { guardarGasto() }
+    /**
+     * Inicializa las referencias a las vistas.
+     */
+    private fun initViews() {
+        etMonto = findViewById(R.id.etMonto)
+        gridCategorias = findViewById(R.id.gridCategorias)
+        etNota = findViewById(R.id.etNota)
+        btnGuardar = findViewById(R.id.btnGuardar)
+        btnBack = findViewById(R.id.btnBack)
+    }
 
-        binding.etNota.addTextChangedListener(object : TextWatcher {
+    /**
+     * Configura los listeners de los botones.
+     */
+    private fun setupListeners() {
+        btnBack.setOnClickListener { finish() }
+        
+        btnGuardar.setOnClickListener {
+            guardarGasto()
+        }
+
+        // Habilitar/deshabilitar botón guardar según los campos
+        etMonto.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                updateUI()
+            }
+        })
+
+        etNota.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) { updateUI() }
@@ -121,6 +154,15 @@ class RegistrarGastoActivity : AppCompatActivity() {
         
         updateUI()
     }
+
+    /**
+     * Actualiza la UI según el estado actual.
+     */
+    private fun updateUI() {
+        // Habilitar botón guardar si hay categoría y monto válido
+        val montoValido = (etMonto.text.toString().toDoubleOrNull() ?: 0.0) > 0
+        btnGuardar.isEnabled = categoriaSeleccionada.isNotEmpty() && montoValido
+        btnGuardar.alpha = if (btnGuardar.isEnabled) 1.0f else 0.5f
 
     private fun setupTeclado() {
         teclas.forEach { tecla ->
@@ -184,6 +226,7 @@ class RegistrarGastoActivity : AppCompatActivity() {
         } catch (_: Exception) {
             monto
         }
+
     }
 
     private fun guardarGasto() {
@@ -194,7 +237,7 @@ class RegistrarGastoActivity : AppCompatActivity() {
             return
         }
 
-        val monto = montoActual.toDoubleOrNull() ?: 0.0
+        val monto = etMonto.text.toString().toDoubleOrNull() ?: 0.0
         if (monto <= 0) {
             showToast("Por favor ingresa un monto válido")
             return
