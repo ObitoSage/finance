@@ -37,6 +37,7 @@
                 android:tint="@color/primary_dark" />
 
             <TextView
+                android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Editar perfil"
@@ -45,6 +46,7 @@
                 android:textColor="@color/primary_dark" />
 
             <TextView
+                android:id="@+id/tvSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Actualiza tu información personal"
@@ -122,6 +124,7 @@
 
             <!-- Campo Nombre completo -->
             <TextView
+                android:id="@+id/tvNombreLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nombre completo *"
@@ -165,49 +168,55 @@
 
             <!-- Campo Email -->
             <TextView
+                android:id="@+id/tvEmailLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Correo electrónico *"
+                android:text="Correo electrónico"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/gray_600"
                 android:layout_marginBottom="8dp" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilEmail"
+            <!-- Email como dato inmutable -->
+            <LinearLayout
+                android:id="@+id/layoutEmail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:boxStrokeWidth="2dp"
-                app:boxStrokeColor="@color/gray_200"
-                app:boxBackgroundColor="@color/white"
-                app:boxCornerRadiusTopStart="16dp"
-                app:boxCornerRadiusTopEnd="16dp"
-                app:boxCornerRadiusBottomStart="16dp"
-                app:boxCornerRadiusBottomEnd="16dp"
-                app:errorEnabled="true"
-                app:errorIconDrawable="@drawable/ic_alert_circle"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_check"
-                app:startIconDrawable="@drawable/ic_mail"
-                app:startIconTint="@color/primary_dark"
-                app:hintEnabled="false">
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_input_readonly"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="24dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:hint="correo@ejemplo.com"
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_mail"
+                    android:tint="@color/gray_400"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="Email" />
+
+                <TextView
+                    android:id="@+id/tvEmail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="correo@ejemplo.com"
                     android:textSize="17sp"
-                    android:textColor="@color/gray_900"
-                    android:textColorHint="@color/gray_400"
-                    android:inputType="textEmailAddress"
-                    android:paddingStart="56dp"
-                    android:paddingEnd="48dp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:textColor="@color/gray_500" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_lock"
+                    android:tint="@color/gray_400"
+                    android:contentDescription="Campo bloqueado" />
+            </LinearLayout>
 
             <!-- Separador -->
             <View
+                android:id="@+id/separatorPersonalInfo"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="@color/gray_100"

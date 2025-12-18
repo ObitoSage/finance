@@ -43,11 +43,6 @@ class LoginActivity : AppCompatActivity() {
             togglePasswordVisibility()
         }
         
-        // Recuperar contraseña
-        binding.tvForgotPassword.setOnClickListener {
-            Toast.makeText(this, "Recuperar contraseña (próximamente)", Toast.LENGTH_SHORT).show()
-        }
-        
         // Botón de login
         binding.btnLogin.setOnClickListener {
             handleLogin()

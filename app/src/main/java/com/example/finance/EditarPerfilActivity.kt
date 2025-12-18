@@ -1,5 +1,7 @@
 package com.example.finance
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,6 +17,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class EditarPerfilActivity : AppCompatActivity() {
 
@@ -47,6 +50,17 @@ class EditarPerfilActivity : AppCompatActivity() {
             return
         }
 
+        // Ocultar campos de nombre y email - solo editar contraseña
+        binding.tilNombre.visibility = View.GONE
+        binding.tvNombreLabel.visibility = View.GONE
+        binding.layoutEmail.visibility = View.GONE
+        binding.tvEmailLabel.visibility = View.GONE
+        binding.separatorPersonalInfo.visibility = View.GONE
+        
+        // Actualizar título
+        binding.tvTitle.text = "Cambiar contraseña"
+        binding.tvSubtitle.text = "Actualiza tu contraseña de acceso"
+        
         cargarDatosUsuario()
         setupClickListeners()
         setupTextWatchers()
@@ -65,9 +79,9 @@ class EditarPerfilActivity : AppCompatActivity() {
         val currentUser = auth.currentUser ?: return
         val userId = currentUser.uid
 
-        // Cargar email
+        // Cargar email (campo inmutable)
         emailOriginal = currentUser.email ?: ""
-        binding.etEmail.setText(emailOriginal)
+        binding.tvEmail.text = emailOriginal
 
         // Cargar nombre
         nombreOriginal = currentUser.displayName ?: ""
@@ -129,17 +143,6 @@ class EditarPerfilActivity : AppCompatActivity() {
             }
         })
 
-        // TextWatcher para el email
-        binding.etEmail.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                validarEmail()
-                verificarCambios()
-                actualizarEstadoBotonGuardar()
-            }
-        })
-
         // TextWatcher para nueva contraseña
         binding.etNuevaPassword.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -191,29 +194,8 @@ class EditarPerfilActivity : AppCompatActivity() {
     }
 
     private fun validarEmail() {
-        val email = binding.etEmail.text.toString().trim()
-        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
-
-        when {
-            email.isEmpty() -> {
-                binding.tilEmail.error = "El email es obligatorio"
-                binding.tilEmail.endIconDrawable = ContextCompat.getDrawable(this, R.drawable.ic_alert_circle)
-                binding.tilEmail.setEndIconTintList(ContextCompat.getColorStateList(this, R.color.error_red))
-                emailValido = false
-            }
-            !email.matches(emailPattern.toRegex()) -> {
-                binding.tilEmail.error = "Ingresa un email válido"
-                binding.tilEmail.endIconDrawable = ContextCompat.getDrawable(this, R.drawable.ic_alert_circle)
-                binding.tilEmail.setEndIconTintList(ContextCompat.getColorStateList(this, R.color.error_red))
-                emailValido = false
-            }
-            else -> {
-                binding.tilEmail.error = null
-                binding.tilEmail.endIconDrawable = ContextCompat.getDrawable(this, R.drawable.ic_check)
-                binding.tilEmail.setEndIconTintList(ContextCompat.getColorStateList(this, R.color.success_green))
-                emailValido = true
-            }
-        }
+        // Email no se puede editar, siempre es válido
+        emailValido = true
     }
 
     private fun validarPassword() {
@@ -294,39 +276,17 @@ class EditarPerfilActivity : AppCompatActivity() {
     }
 
     private fun verificarCambios() {
-        val nombre = binding.etNombre.text.toString().trim()
-        val email = binding.etEmail.text.toString().trim()
         val nuevaPassword = binding.etNuevaPassword.text.toString()
         val confirmarPassword = binding.etConfirmarPassword.text.toString()
 
-        hayCambios = nombre != nombreOriginal ||
-                email != emailOriginal ||
-                nuevaPassword.isNotEmpty() ||
-                confirmarPassword.isNotEmpty()
+        hayCambios = nuevaPassword.isNotEmpty() || confirmarPassword.isNotEmpty()
     }
 
     private fun actualizarEstadoBotonGuardar() {
-        // Validar solo los campos que fueron modificados
-        val nombre = binding.etNombre.text.toString().trim()
-        val email = binding.etEmail.text.toString().trim()
-        val nuevaPassword = binding.etNuevaPassword.text.toString()
-        val confirmarPassword = binding.etConfirmarPassword.text.toString()
+        // El botón se habilita si hay cambios y la contraseña es válida
+        val todosLosCamposValidos = passwordValida && passwordsCoinciden
         
-        // Verificar si cada campo modificado es válido
-        val nombreCambiadoYValido = nombre != nombreOriginal && nombreValido
-        val emailCambiadoYValido = email != emailOriginal && emailValido
-        val passwordCambiadaYValida = (nuevaPassword.isNotEmpty() || confirmarPassword.isNotEmpty()) && passwordValida && passwordsCoinciden
-        
-        // El formulario es válido si al menos un campo cambió y es válido
-        val algunCambioValido = nombreCambiadoYValido || emailCambiadoYValido || passwordCambiadaYValida
-        
-        // También verificar que los campos que NO cambiaron sigan siendo válidos
-        val camposNoModificadosValidos = 
-            (nombre == nombreOriginal || nombreValido) &&
-            (email == emailOriginal || emailValido) &&
-            (nuevaPassword.isEmpty() && confirmarPassword.isEmpty() || (passwordValida && passwordsCoinciden))
-        
-        binding.btnGuardar.isEnabled = hayCambios && algunCambioValido && camposNoModificadosValidos
+        binding.btnGuardar.isEnabled = hayCambios && todosLosCamposValidos
 
         if (binding.btnGuardar.isEnabled) {
             binding.btnGuardar.backgroundTintList = ContextCompat.getColorStateList(this, R.color.teal_500)
@@ -352,66 +312,91 @@ class EditarPerfilActivity : AppCompatActivity() {
     }
 
     private fun handleGuardar() {
-        // Validar todos los campos
-        validarNombre()
-        validarEmail()
+        // Validar contraseña
         validarPassword()
         validarConfirmarPassword()
 
-        val formularioValido = nombreValido && emailValido && passwordValida && passwordsCoinciden
+        val formularioValido = passwordValida && passwordsCoinciden
 
         if (!formularioValido) {
             showToast("Por favor corrige los errores en el formulario")
             return
         }
 
-        val nombre = binding.etNombre.text.toString().trim()
-        val email = binding.etEmail.text.toString().trim()
         val nuevaPassword = binding.etNuevaPassword.text.toString()
+        val currentUser = auth.currentUser
 
-        // Deshabilitar botón mientras se guarda
+        if (currentUser == null) {
+            showToast("Error: No hay sesión activa")
+            return
+        }
+
+        if (nuevaPassword.isEmpty()) {
+            showToast("Debes ingresar una nueva contraseña")
+            return
+        }
+
+        // Deshabilitar botón
         binding.btnGuardar.isEnabled = false
 
-        // Contador de operaciones pendientes
-        var operacionesPendientes = 0
-        var operacionesExitosas = 0
-        
-        // Contar operaciones a realizar
-        if (nombre != nombreOriginal) operacionesPendientes++
-        if (email != emailOriginal) operacionesPendientes++
-        if (nuevaPassword.isNotEmpty()) operacionesPendientes++
-        
-        // Función para verificar si todas las operaciones terminaron
-        fun verificarCompletado() {
-            operacionesExitosas++
-            if (operacionesExitosas >= operacionesPendientes) {
-                mostrarExitoYRegresar()
+        // Solicitar contraseña actual para reautenticación
+        mostrarDialogoPasswordActual { passwordActual ->
+            if (passwordActual != null) {
+                reautenticarYCambiarPassword(nuevaPassword, passwordActual)
+            } else {
+                binding.btnGuardar.isEnabled = true
             }
+        }
+    }
+
+    private fun reautenticarYCambiarPassword(nuevaPassword: String, passwordActual: String) {
+        val currentUser = auth.currentUser ?: return
+        val email = currentUser.email ?: ""
+        val credential = EmailAuthProvider.getCredential(email, passwordActual)
+
+        currentUser.reauthenticate(credential)
+            .addOnSuccessListener {
+                // Reautenticación exitosa, cambiar contraseña
+                actualizarPassword(nuevaPassword) { exito ->
+                    if (exito) {
+                        mostrarExitoYRegresar()
+                    } else {
+                        binding.btnGuardar.isEnabled = true
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                binding.btnGuardar.isEnabled = true
+                showToast("Contraseña actual incorrecta")
+            }
+    }
+
+    private fun mostrarDialogoPasswordActual(callback: (String?) -> Unit) {
+        val builder = android.app.AlertDialog.Builder(this)
+        builder.setTitle("Confirmación requerida")
+        builder.setMessage("Para cambiar tu email o contraseña, ingresa tu contraseña actual:")
+
+        val input = android.widget.EditText(this)
+        input.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        builder.setView(input)
+
+        builder.setPositiveButton("Confirmar") { dialog, _ ->
+            val password = input.text.toString()
+            if (password.isNotEmpty()) {
+                callback(password)
+            } else {
+                showToast("Debes ingresar tu contraseña actual")
+                callback(null)
+            }
+            dialog.dismiss()
         }
 
-        // Actualizar nombre
-        if (nombre != nombreOriginal) {
-            actualizarNombre(nombre) { exito ->
-                if (exito) verificarCompletado()
-                else binding.btnGuardar.isEnabled = true
-            }
+        builder.setNegativeButton("Cancelar") { dialog, _ ->
+            callback(null)
+            dialog.dismiss()
         }
 
-        // Actualizar email
-        if (email != emailOriginal) {
-            actualizarEmail(email) { exito ->
-                if (exito) verificarCompletado()
-                else binding.btnGuardar.isEnabled = true
-            }
-        }
-
-        // Actualizar contraseña si se proporcionó
-        if (nuevaPassword.isNotEmpty()) {
-            actualizarPassword(nuevaPassword) { exito ->
-                if (exito) verificarCompletado()
-                else binding.btnGuardar.isEnabled = true
-            }
-        }
+        builder.show()
     }
 
     private fun actualizarNombre(nuevoNombre: String, callback: (Boolean) -> Unit) {
@@ -427,39 +412,28 @@ class EditarPerfilActivity : AppCompatActivity() {
 
         currentUser.updateProfile(profileUpdates)
             .addOnSuccessListener {
-                // Actualizar en Firestore
+                // Intentar actualizar en Firestore (crear documento si no existe)
+                val userData = hashMapOf(
+                    "nombre" to nuevoNombre,
+                    "email" to currentUser.email
+                )
+                
                 db.collection("users").document(userId)
-                    .update("nombre", nuevoNombre)
+                    .set(userData, SetOptions.merge())
                     .addOnSuccessListener {
                         nombreOriginal = nuevoNombre
                         verificarCambios()
                         callback(true)
                     }
                     .addOnFailureListener {
-                        showToast("Error al actualizar el nombre en la base de datos")
-                        callback(false)
+                        // Aunque falle Firestore, el nombre se actualizó en Auth
+                        nombreOriginal = nuevoNombre
+                        verificarCambios()
+                        callback(true)
                     }
             }
             .addOnFailureListener {
                 showToast("Error al actualizar el nombre")
-                callback(false)
-            }
-    }
-
-    private fun actualizarEmail(nuevoEmail: String, callback: (Boolean) -> Unit) {
-        val currentUser = auth.currentUser ?: run {
-            callback(false)
-            return
-        }
-
-        currentUser.updateEmail(nuevoEmail)
-            .addOnSuccessListener {
-                emailOriginal = nuevoEmail
-                verificarCambios()
-                callback(true)
-            }
-            .addOnFailureListener { exception ->
-                showToast("Error al actualizar el email: ${exception.message}")
                 callback(false)
             }
     }
@@ -475,23 +449,26 @@ class EditarPerfilActivity : AppCompatActivity() {
                 callback(true)
             }
             .addOnFailureListener { exception ->
-                // Si falla por reautenticación requerida
-                if (exception.message?.contains("requires recent authentication") == true) {
-                    showToast("Por favor, vuelve a iniciar sesión para cambiar tu contraseña")
-                } else {
-                    showToast("Error al actualizar la contraseña: ${exception.message}")
-                }
+                showToast("Error al actualizar la contraseña: ${exception.message}")
                 callback(false)
             }
     }
 
     private fun mostrarExitoYRegresar() {
+        // Asegurarse de que la tarjeta de éxito sea visible
         binding.cardSuccessMessage.visibility = View.VISIBLE
+        binding.cardSuccessMessage.alpha = 0f
+        binding.cardSuccessMessage.animate()
+            .alpha(1f)
+            .setDuration(300)
+            .start()
 
         // Scroll al inicio para mostrar el mensaje
         binding.scrollView.smoothScrollTo(0, 0)
 
         Handler(Looper.getMainLooper()).postDelayed({
+            // Regresar a UsuarioActivity con resultado exitoso
+            setResult(Activity.RESULT_OK)
             finish()
         }, 1500)
     }
