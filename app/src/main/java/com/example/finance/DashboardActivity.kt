@@ -80,6 +80,13 @@ class DashboardActivity : AppCompatActivity() {
         setIntent(intent)
         checkProfileUpdateMessage()
     }
+    private fun checkProfileUpdateMessage() {
+        if (intent.getBooleanExtra("PROFILE_UPDATED", false)) {
+            showToast("Los cambios se guardaron correctamente")
+            // Limpiar el extra para que no se muestre de nuevo
+            intent.removeExtra("PROFILE_UPDATED")
+        }
+    }
     private fun configureUI() {
         // Configurar fecha actual
         val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM yyyy", Locale("es", "ES"))
