@@ -176,21 +176,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Olvidé mi contraseña -->
-        <TextView
-            android:id="@+id/tvForgotPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/forgot_password"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_dark"
-            android:layout_gravity="end"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="4dp" />
-
         <!-- Error message -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cvError"

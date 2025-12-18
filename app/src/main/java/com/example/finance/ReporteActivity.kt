@@ -239,7 +239,7 @@ class ReporteActivity : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, "Mi reporte de gastos")
-            putExtra(Intent.EXTRA_TEXT, "Reporte generado desde Plata Clara")
+            putExtra(Intent.EXTRA_TEXT, "Reporte generado desde Finance")
         }
         startActivity(Intent.createChooser(intent, "Compartir reporte"))
     }
