@@ -48,10 +48,8 @@ class GastoAdapter(
         notifyDataSetChanged()
     }
 
-    inner class GastoViewHolder(
-        private val binding: ItemGastoBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
+    inner class GastoViewHolder(private val binding: ItemGastoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         private val timeFormat = SimpleDateFormat("HH:mm", Locale("es", "CO"))
         private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
             maximumFractionDigits = 0

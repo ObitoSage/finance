@@ -1,265 +1,239 @@
 package com.example.finance
 
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.GridLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.finance.databinding.ActivityRegistrarIngresoBinding
 import com.example.finance.dataBase.entities.IngresoEntity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
-import java.util.*
+import java.util.Locale
 
 class RegistrarIngresoActivity : AppCompatActivity() {
 
-    // Views
-    private lateinit var etMonto: EditText
-    private lateinit var gridCategorias: GridLayout
-    private lateinit var etDescripcion: EditText
-    private lateinit var btnGuardar: Button
-    private lateinit var btnBack: ImageButton
+    private lateinit var binding: ActivityRegistrarIngresoBinding
+    private lateinit var auth: FirebaseAuth
 
-    // Variables
+    // Estado
     private var categoriaSeleccionada = ""
     private var montoSinFormato = ""
 
-    // Categorías disponibles con sus emojis
+    // Formato de moneda
+    @Suppress("DEPRECATION")
+    private val numberFormat = NumberFormat.getNumberInstance(Locale("es", "CO"))
+
+    // Categorías: id -> (nombre, emoji)
     private val categorias = listOf(
-        Pair("salario", Pair("Salario", "💼")),
-        Pair("freelance", Pair("Freelance", "📈")),
-        Pair("bonificacion", Pair("Bonificación", "🎁")),
-        Pair("venta", Pair("Venta", "🏷️")),
-        Pair("otro", Pair("Otro", "💵"))
+        Triple("salario", "Salario", "💼"),
+        Triple("freelance", "Freelance", "📈"),
+        Triple("bonificacion", "Bonificación", "🎁"),
+        Triple("venta", "Venta", "🏷️"),
+        Triple("otro", "Otro", "💵")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_registrar_ingreso)
+        binding = ActivityRegistrarIngresoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        initViews()
+        auth = FirebaseAuth.getInstance()
+
         setupCategorias()
-        setupListeners()
+        setupClickListeners()
+        setupMontoTextWatcher()
         updateUI()
     }
 
-    private fun initViews() {
-        etMonto = findViewById(R.id.etMonto)
-        gridCategorias = findViewById(R.id.gridCategorias)
-        etDescripcion = findViewById(R.id.etDescripcion)
-        btnGuardar = findViewById(R.id.btnGuardar)
-        btnBack = findViewById(R.id.btnBack)
+    private fun setupClickListeners() {
+        binding.btnBack.setOnClickListener { finish() }
+        binding.btnGuardar.setOnClickListener { guardarIngreso() }
+
+        binding.etDescripcion.addTextChangedListener(SimpleTextWatcher { updateUI() })
     }
 
-    /**
-     * Configura los listeners de los elementos.
-     */
-    private fun setupListeners() {
-        btnBack.setOnClickListener { finish() }
-        
-        btnGuardar.setOnClickListener {
-            guardarIngreso()
-        }
+    private fun setupMontoTextWatcher() {
+        binding.etMonto.addTextChangedListener(object : TextWatcher {
+            private var isUpdating = false
 
-        // TextWatcher para formatear el monto mientras se escribe
-        etMonto.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             
             override fun afterTextChanged(s: Editable?) {
-                etMonto.removeTextChangedListener(this)
-                
+                if (isUpdating) return
+                isUpdating = true
+
                 try {
-                    val original = s.toString()
-                    val cleanString = original.replace("[^\\d]".toRegex(), "")
-                    
+                    val cleanString = s.toString().replace("[^\\d]".toRegex(), "")
+
                     if (cleanString.isNotEmpty()) {
                         montoSinFormato = cleanString
-                        val formatted = formatMonto(cleanString)
-                        etMonto.setText(formatted)
-                        etMonto.setSelection(formatted.length)
+                        val formatted = formatearMonto(cleanString)
+                        binding.etMonto.setText(formatted)
+                        binding.etMonto.setSelection(formatted.length)
                     } else {
                         montoSinFormato = ""
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (_: Exception) {
+                    // Ignorar errores de formato
                 }
                 
-                etMonto.addTextChangedListener(this)
-                updateUI()
-            }
-        })
-
-        etDescripcion.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
+                isUpdating = false
                 updateUI()
             }
         })
     }
 
-    /**
-     * Formatea el monto con separadores de miles.
-     */
-    private fun formatMonto(value: String): String {
+    private fun setupCategorias() {
+        categorias.forEach { (id, nombre, emoji) ->
+            val layout = createCategoriaLayout(id, nombre, emoji)
+            binding.gridCategorias.addView(layout)
+        }
+    }
+
+    private fun createCategoriaLayout(id: String, nombre: String, emoji: String): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(16, 16, 16, 16)
+            setBackgroundResource(R.drawable.bg_categoria_default)
+
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 0
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                setMargins(8, 8, 8, 8)
+            }
+
+            // Icono emoji
+            addView(TextView(context).apply {
+                text = emoji
+                textSize = 20f
+                gravity = Gravity.CENTER
+                setBackgroundResource(R.drawable.bg_icon_circle)
+                setPadding(12, 12, 12, 12)
+            })
+
+            // Texto nombre
+            addView(TextView(context).apply {
+                text = nombre
+                textSize = 17f
+                setTextColor(ContextCompat.getColor(context, R.color.primary_dark))
+                setPadding(12, 0, 0, 0)
+            })
+
+            setOnClickListener { seleccionarCategoria(id) }
+        }
+    }
+
+    private fun seleccionarCategoria(categoriaId: String) {
+        categoriaSeleccionada = categoriaId
+        
+        // Actualizar estado visual de todos los layouts
+        for (i in 0 until binding.gridCategorias.childCount) {
+            val layout = binding.gridCategorias.getChildAt(i) as LinearLayout
+            val isSelected = categorias.getOrNull(i)?.first == categoriaId
+
+            layout.setBackgroundResource(
+                if (isSelected) R.drawable.bg_categoria_selected
+                else R.drawable.bg_categoria_default
+            )
+
+            // Actualizar color del texto (segundo hijo del layout)
+            val textView = layout.getChildAt(1) as TextView
+            textView.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    if (isSelected) android.R.color.white else R.color.primary_dark
+                )
+            )
+        }
+        
+        updateUI()
+    }
+
+    private fun updateUI() {
+        val montoValido = (montoSinFormato.toLongOrNull() ?: 0L) > 0
+        val isFormValid = categoriaSeleccionada.isNotEmpty() && montoValido
+
+        binding.btnGuardar.apply {
+            isEnabled = isFormValid
+            alpha = if (isFormValid) 1.0f else 0.5f
+        }
+    }
+
+    private fun formatearMonto(value: String): String {
         return try {
             val numero = value.toLongOrNull() ?: 0L
-            NumberFormat.getNumberInstance(Locale("es", "CO")).format(numero)
-        } catch (e: Exception) {
+            numberFormat.format(numero)
+        } catch (_: Exception) {
             value
         }
     }
 
-    /**
-     * Crea dinámicamente el grid de categorías.
-     */
-    private fun setupCategorias() {
-        categorias.forEach { (id, categoriaData) ->
-            val (nombre, emoji) = categoriaData
-            
-            val button = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(16, 16, 16, 16)
-                setBackgroundResource(R.drawable.bg_categoria_default)
-                
-                // Parámetros del layout
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                    setMargins(8, 8, 8, 8)
-                }
-                layoutParams = params
-
-                // Icono
-                val iconContainer = TextView(this@RegistrarIngresoActivity).apply {
-                    text = emoji
-                    textSize = 20f
-                    gravity = Gravity.CENTER
-                    setBackgroundResource(R.drawable.bg_icon_circle)
-                    setPadding(12, 12, 12, 12)
-                }
-                addView(iconContainer)
-
-                // Texto
-                val textView = TextView(this@RegistrarIngresoActivity).apply {
-                    text = nombre
-                    textSize = 17f
-                    setTextColor(Color.parseColor("#212842"))
-                    setPadding(12, 0, 0, 0)
-                }
-                addView(textView)
-
-                // Click listener
-                setOnClickListener {
-                    seleccionarCategoria(id)
-                }
-            }
-            
-            gridCategorias.addView(button)
-        }
-    }
-
-    /**
-     * Selecciona una categoría y actualiza la UI.
-     */
-    private fun seleccionarCategoria(categoriaId: String) {
-        categoriaSeleccionada = categoriaId
-        
-        // Actualizar todos los botones de categoría
-        for (i in 0 until gridCategorias.childCount) {
-            val layout = gridCategorias.getChildAt(i) as LinearLayout
-            val currentCategoriaId = categorias.getOrNull(i)?.first ?: ""
-            
-            if (currentCategoriaId == categoriaId) {
-                layout.setBackgroundResource(R.drawable.bg_categoria_selected)
-                // Cambiar color del texto
-                val textView = layout.getChildAt(1) as TextView
-                textView.setTextColor(Color.WHITE)
-            } else {
-                layout.setBackgroundResource(R.drawable.bg_categoria_default)
-                val textView = layout.getChildAt(1) as TextView
-                textView.setTextColor(Color.parseColor("#212842"))
-            }
-        }
-        
-        updateUI()
-    }
-
-    /**
-     * Actualiza la UI según el estado actual.
-     */
-    private fun updateUI() {
-        // Habilitar botón guardar si hay categoría y monto válido
-        val montoValido = (montoSinFormato.toLongOrNull() ?: 0L) > 0
-        btnGuardar.isEnabled = categoriaSeleccionada.isNotEmpty() && montoValido
-        btnGuardar.alpha = if (btnGuardar.isEnabled) 1.0f else 0.5f
-    }
-
-    /**
-     * Guarda el ingreso en Room Database.
-     */
     private fun guardarIngreso() {
-        // Obtener el userId de Firebase Auth
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        
+        val userId = auth.currentUser?.uid
+
         if (userId == null) {
-            Toast.makeText(this, "Error: Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            showToast("Error: Usuario no autenticado")
             return
         }
 
         val monto = montoSinFormato.toDoubleOrNull() ?: 0.0
         if (monto <= 0) {
-            Toast.makeText(this, "Por favor ingresa un monto válido", Toast.LENGTH_SHORT).show()
+            showToast("Por favor ingresa un monto válido")
             return
         }
 
         if (categoriaSeleccionada.isEmpty()) {
-            Toast.makeText(this, "Por favor selecciona una categoría", Toast.LENGTH_SHORT).show()
+            showToast("Por favor selecciona una categoría")
             return
         }
 
-        // Obtener el nombre de la categoría
-        val categoriaNombre = categorias.find { it.first == categoriaSeleccionada }?.second?.first 
+        // Obtener el nombre visible de la categoría
+        val categoriaNombre = categorias.find { it.first == categoriaSeleccionada }?.second
             ?: categoriaSeleccionada
 
-        // Crear el objeto IngresoEntity
         val ingreso = IngresoEntity(
             categoria = categoriaNombre,
-            descripcion = etDescripcion.text.toString().ifEmpty { "Sin descripción" },
+            descripcion = binding.etDescripcion.text.toString().ifEmpty { "Sin descripción" },
             monto = monto,
             fecha = System.currentTimeMillis(),
             userId = userId
         )
 
-        // Guardar en Room Database usando coroutines
         lifecycleScope.launch {
             try {
                 val app = application as FinanceApplication
-                val ingresoId = app.repository.insertIngreso(ingreso)
-                
-                Toast.makeText(
-                    this@RegistrarIngresoActivity,
-                    "Ingreso guardado correctamente (ID: $ingresoId)",
-                    Toast.LENGTH_SHORT
-                ).show()
-                
-                // Cerrar la activity
+                app.repository.insertIngreso(ingreso)
+
+                showToast("Ingreso guardado correctamente")
                 finish()
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@RegistrarIngresoActivity,
-                    "Error al guardar: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                showToast("Error al guardar: ${e.message}")
             }
         }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * TextWatcher simplificado para casos donde solo se necesita afterTextChanged
+     */
+    private class SimpleTextWatcher(private val onChanged: () -> Unit) : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) { onChanged() }
     }
 }

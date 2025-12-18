@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 interface GastoDao {
     
     // PUT
-    
     /**
      * Inserta un nuevo gasto en la base de datos.
      * @return El ID del gasto insertado.
